@@ -33,7 +33,7 @@ const GridCalculator = {
             cardWidth,
             cardHeight,
             margin,
-            topOffset = 200
+            topOffset = 100  // 레퍼런스처럼 상단 UI 축소
         } = config;
 
         // 그리드 전체 크기 계산
@@ -141,14 +141,15 @@ const GridCalculator = {
         const maxCardWidth = Math.floor(availableWidth / optimal.cols);
         const maxCardHeight = Math.floor(availableHeight / optimal.rows);
 
-        // 카드 비율 유지 (약 5:7)
-        const aspectRatio = 5 / 7;
-        let cardWidth = Math.min(maxCardWidth, maxCardHeight * aspectRatio);
-        let cardHeight = cardWidth / aspectRatio;
+        // 카드 정사각형 비율 (1:1, 레퍼런스 스타일)
+        const aspectRatio = 1 / 1;
+        let cardSize = Math.min(maxCardWidth, maxCardHeight);
 
-        // 최소/최대 크기 제한
-        cardWidth = Math.max(60, Math.min(120, cardWidth));
-        cardHeight = Math.max(84, Math.min(168, cardHeight));
+        // 최소/최대 크기 제한 (정사각형)
+        cardSize = Math.max(80, Math.min(130, cardSize));
+
+        let cardWidth = cardSize;
+        let cardHeight = cardSize;
 
         const margin = Math.max(5, cardWidth * 0.1);
 

@@ -70,13 +70,13 @@ const CANVAS_CONFIG = {
     backgroundColor: '#FFFFFF'
 };
 
-// 카드 설정
+// 카드 설정 (정사각형, 레퍼런스 스타일)
 const CARD_CONFIG = {
-    width: 100,
-    height: 140,
-    cornerRadius: 10,
-    margin: 10,
-    backColor: '#424242',
+    width: 110,             // 정사각형
+    height: 110,            // 정사각형
+    cornerRadius: 20,       // 둥근 모서리
+    margin: 18,             // 카드 간격 증가
+    backColor: '#FFB4D1',   // 파스텔 핑크
     flipDuration: 300,      // ms
     matchDelay: 500,        // 성공 시 대기
     mismatchDelay: 1000     // 실패 시 대기

@@ -331,7 +331,7 @@ class UIRenderer {
     }
 
     /**
-     * 상단 UI 바 (부드러운 파스텔 스타일)
+     * 상단 UI 바 (레퍼런스 스타일 - 미니멀)
      *
      * @private
      * @param {GameState} gameState
@@ -339,63 +339,66 @@ class UIRenderer {
     _drawTopBar(gameState) {
         push();
 
-        // 밝은 반투명 배경
-        fill(255, 255, 255, 245);
-        noStroke();
-        drawingContext.shadowBlur = 8;
-        drawingContext.shadowColor = 'rgba(0, 0, 0, 0.1)';
-        drawingContext.shadowOffsetY = 4;
-        rect(0, 0, width, 130, 0, 0, 24, 24);
+        // 레퍼런스처럼 매우 작고 미니멀한 UI
+        const padding = 20;
+        const badgeSize = 80;
 
-        textAlign(LEFT, TOP);
-        textSize(22);
-        textStyle(BOLD);
+        // 왼쪽 상단: 하트 카운터 (레퍼런스 스타일)
+        this._drawHeartCounter(padding, padding, gameState.getRemainingPairs());
 
-        const padding = 30;
-        const lineHeight = 38;
-
-        // 타이머
+        // 오른쪽 상단: 타이머 (작게)
         const minutes = floor(gameState.timeRemaining / 60);
         const seconds = gameState.timeRemaining % 60;
         const timeStr = `${nf(minutes, 2)}:${nf(seconds, 2)}`;
 
-        drawingContext.shadowBlur = 2;
-        drawingContext.shadowColor = 'rgba(0, 0, 0, 0.1)';
-        drawingContext.shadowOffsetY = 1;
+        push();
+        translate(width - padding - 100, padding);
 
-        // 시간 색상 (10초 이하면 코랄 + 깜빡임)
-        if (gameState.timeRemaining <= 10 && frameCount % 30 < 15) {
-            fill(this.style.pastelCoral);
-        } else {
-            fill(this.style.textPrimary);
-        }
-        text(`⏱ ${timeStr}`, padding, padding);
+        // 타이머 배경
+        fill(150, 150, 150, 200);
+        noStroke();
+        drawingContext.shadowBlur = 6;
+        drawingContext.shadowColor = 'rgba(0, 0, 0, 0.15)';
+        rect(0, 0, 100, 40, 20);
 
-        // 점수 (파스텔 핑크)
-        fill(this.style.textPrimary);
-        text(`♥ ${gameState.score}점`, padding, padding + lineHeight);
+        // 타이머 텍스트
+        fill(255);
+        textAlign(CENTER, CENTER);
+        textSize(20);
+        textStyle(BOLD);
+        drawingContext.shadowBlur = 0;
+        text(timeStr, 50, 20);
+        pop();
 
-        // 남은 쌍
-        fill(this.style.textSecondary);
-        text(`남은 쌍: ${gameState.getRemainingPairs()}`,
-             width / 2 - 80, padding);
+        pop();
+    }
 
-        // 시도 횟수
-        text(`시도: ${gameState.attempts}`,
-             width / 2 - 80, padding + lineHeight);
+    /**
+     * 하트 카운터 그리기 (레퍼런스 스타일)
+     * @private
+     */
+    _drawHeartCounter(x, y, remainingPairs) {
+        push();
+        translate(x, y);
 
-        // 콤보 (오른쪽 상단, 큰 크기)
-        if (gameState.combo > 1) {
-            textAlign(RIGHT, TOP);
-            fill(this.style.pastelPink);
-            textSize(32);
-            const comboScale = 1 + sin(frameCount * 0.15) * 0.08;
-            push();
-            translate(width - padding - 80, padding + lineHeight / 2);
-            scale(comboScale);
-            text(`${gameState.combo} COMBO! 🎉`, 0, 0);
-            pop();
-        }
+        // 배경
+        fill(150, 150, 150, 200);
+        noStroke();
+        drawingContext.shadowBlur = 6;
+        drawingContext.shadowColor = 'rgba(0, 0, 0, 0.15)';
+        rect(0, 0, 100, 40, 20);
+
+        // 하트 아이콘
+        textAlign(CENTER, CENTER);
+        textSize(24);
+        drawingContext.shadowBlur = 0;
+        text('♥', 25, 20);
+
+        // 숫자
+        fill(255);
+        textSize(20);
+        textStyle(BOLD);
+        text(`x${remainingPairs}`, 65, 20);
 
         pop();
     }
@@ -759,98 +762,12 @@ class UIRenderer {
     }
 
     /**
-     * 유기적 장식 요소 그리기 (별, 하트, 구름)
+     * 장식 요소 (레퍼런스 스타일 - 매우 미니멀)
      *
      * @private
      */
     _drawSoftDecorations() {
-        push();
-
-        // 떠다니는 다양한 shape들
-        const decorations = [
-            { x: width * 0.1, y: height * 0.2, type: 'heart', size: 40, color: this.style.pastelPink, rotation: 0.02 },
-            { x: width * 0.9, y: height * 0.3, type: 'star', size: 50, color: this.style.pastelYellow, rotation: 0.03 },
-            { x: width * 0.15, y: height * 0.8, type: 'cloud', size: 60, color: this.style.pastelMint, rotation: 0.015 },
-            { x: width * 0.85, y: height * 0.7, type: 'star', size: 45, color: this.style.pastelLavender, rotation: -0.025 },
-            { x: width * 0.5, y: height * 0.15, type: 'heart', size: 35, color: this.style.pastelPeach, rotation: 0.018 }
-        ];
-
-        decorations.forEach((deco, index) => {
-            const floatY = sin((frameCount + index * 30) * 0.03) * 15;
-            const floatX = cos((frameCount + index * 45) * 0.02) * 8;
-            const rotation = (frameCount + index * 60) * deco.rotation;
-            const pulse = 1 + sin((frameCount + index * 20) * 0.05) * 0.1;
-
-            push();
-            translate(deco.x + floatX, deco.y + floatY);
-            rotate(rotation);
-            scale(pulse);
-
-            // 3D 그림자
-            fill(0, 0, 0, 20);
-            noStroke();
-            this._drawShape(deco.type, 3, 3, deco.size);
-
-            // 메인 shape
-            const shapeColor = color(deco.color);
-            const gradient = drawingContext.createRadialGradient(0, 0, 0, 0, 0, deco.size / 2);
-            gradient.addColorStop(0, deco.color);
-            gradient.addColorStop(1, `rgba(${red(shapeColor)}, ${green(shapeColor)}, ${blue(shapeColor)}, 0.7)`);
-
-            drawingContext.fillStyle = gradient;
-            drawingContext.shadowBlur = 12;
-            drawingContext.shadowColor = deco.color;
-            this._drawShape(deco.type, 0, 0, deco.size);
-
-            // 하이라이트
-            fill(255, 255, 255, 150);
-            drawingContext.shadowBlur = 0;
-            this._drawShape(deco.type, -deco.size * 0.15, -deco.size * 0.15, deco.size * 0.4);
-
-            pop();
-        });
-
-        pop();
-    }
-
-    /**
-     * Shape 그리기 헬퍼
-     *
-     * @private
-     */
-    _drawShape(type, offsetX, offsetY, size) {
-        push();
-        translate(offsetX, offsetY);
-
-        if (type === 'heart') {
-            // 하트 그리기
-            beginShape();
-            for (let a = 0; a < TWO_PI; a += 0.1) {
-                const r = size * 0.4 * (1 - sin(a));
-                const x = r * cos(a);
-                const y = r * sin(a) - size * 0.2;
-                vertex(x, y);
-            }
-            endShape(CLOSE);
-        } else if (type === 'star') {
-            // 별 그리기 (5각별)
-            beginShape();
-            for (let i = 0; i < 10; i++) {
-                const angle = (TWO_PI / 10) * i - HALF_PI;
-                const r = (i % 2 === 0) ? size * 0.5 : size * 0.2;
-                const x = cos(angle) * r;
-                const y = sin(angle) * r;
-                vertex(x, y);
-            }
-            endShape(CLOSE);
-        } else if (type === 'cloud') {
-            // 구름 그리기 (3개의 원)
-            ellipse(-size * 0.25, 0, size * 0.6, size * 0.6);
-            ellipse(size * 0.25, 0, size * 0.6, size * 0.6);
-            ellipse(0, -size * 0.15, size * 0.7, size * 0.7);
-        }
-
-        pop();
+        // 레퍼런스는 장식이 거의 없음 - 생략
     }
 
     // ========== 유틸리티 ==========

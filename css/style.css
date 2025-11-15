@@ -84,61 +84,35 @@ body {
     position: relative;
 }
 
-/* ========== 배경 효과 (다층 그라데이션) ========== */
+/* ========== 배경 (레퍼런스 스타일 - 단순 파스텔) ========== */
 body::before {
-    content: '';
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background:
-        radial-gradient(circle at 15% 30%, rgba(255, 180, 209, 0.4) 0%, transparent 40%),
-        radial-gradient(circle at 85% 70%, rgba(180, 248, 200, 0.35) 0%, transparent 45%),
-        radial-gradient(circle at 50% 50%, rgba(180, 212, 255, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 70% 20%, rgba(255, 244, 183, 0.25) 0%, transparent 35%),
-        radial-gradient(circle at 30% 80%, rgba(229, 212, 255, 0.3) 0%, transparent 40%);
-    animation: floatBackground 25s ease-in-out infinite;
-    z-index: -2;
-}
-
-@keyframes floatBackground {
-    0%, 100% {
-        transform: translate(0, 0) rotate(0deg) scale(1);
-        opacity: 1;
-    }
-    33% {
-        transform: translate(40px, -40px) rotate(2deg) scale(1.05);
-        opacity: 0.9;
-    }
-    66% {
-        transform: translate(-30px, 30px) rotate(-2deg) scale(0.95);
-        opacity: 0.95;
-    }
-}
-
-/* 부드러운 점 + 별 패턴 */
-body::after {
     content: '';
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image:
-        radial-gradient(circle, rgba(255, 255, 255, 0.4) 1.5px, transparent 1.5px),
-        radial-gradient(circle, rgba(180, 212, 255, 0.2) 1px, transparent 1px);
-    background-size: 60px 60px, 30px 30px;
-    background-position: 0 0, 15px 15px;
-    z-index: -1;
-    opacity: 0.6;
-    animation: shimmer 15s linear infinite;
+    background: linear-gradient(180deg, #B4F8C8 0%, #FFF4B7 100%);
+    z-index: -2;
 }
 
-@keyframes shimmer {
-    0% { opacity: 0.6; }
-    50% { opacity: 0.8; }
-    100% { opacity: 0.6; }
+/* 상단 구름 장식 (레퍼런스 스타일) */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    background:
+        radial-gradient(ellipse 100px 40px at 15% 80%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+        radial-gradient(ellipse 80px 35px at 25% 75%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
+        radial-gradient(ellipse 120px 45px at 40% 82%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+        radial-gradient(ellipse 90px 38px at 60% 78%, rgba(255, 255, 255, 0.45) 0%, transparent 100%),
+        radial-gradient(ellipse 110px 42px at 75% 80%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+        radial-gradient(ellipse 85px 36px at 90% 76%, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
+    z-index: -1;
+    pointer-events: none;
 }
 
 /* ========== 캔버스 컨테이너 ========== */
