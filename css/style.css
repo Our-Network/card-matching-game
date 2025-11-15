@@ -1,0 +1,47 @@
+/* ====================================
+   메모리 카드 게임 스타일시트
+   담당: 윤현준 (전체 UI 스타일)
+   ==================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+}
+
+/* p5.js 캔버스 스타일 */
+canvas {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+/* TODO: 난이도별 색상 테마 추가
+   - 하: 파스텔 톤
+   - 중: 중간 채도
+   - 상: 레드 계열
+   - 지옥: 검정/빨강
+*/
+
+/* TODO: 반응형 디자인
+   - 모바일: 세로 레이아웃
+   - 태블릿: 작은 그리드
+   - 데스크탑: 큰 그리드
+*/
