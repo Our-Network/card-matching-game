@@ -1,35 +1,46 @@
 /* ====================================
-   네온 아케이드 메모리 - 스타일시트
-   디자인 컨셉: 레트로 아케이드 + 사이버펑크 네온
+   부드럽고 귀여운 메모리 게임 스타일시트
+   디자인 컨셉: Soft Playful Casual
    ==================================== */
 
-/* ========== CSS 변수 (테마 시스템) ========== */
+/* ========== CSS 변수 (파스텔 테마 시스템) ========== */
 :root {
-    /* 네온 컬러 팔레트 */
-    --neon-pink: #FF10F0;
-    --neon-cyan: #00F0FF;
-    --neon-purple: #B026FF;
-    --neon-green: #39FF14;
-    --neon-orange: #FF6B35;
+    /* 파스텔 컬러 팔레트 */
+    --pastel-blue: #B4D4FF;
+    --pastel-pink: #FFB4D1;
+    --pastel-yellow: #FFF4B7;
+    --pastel-mint: #B4F8C8;
+    --pastel-lavender: #E5D4FF;
+    --pastel-peach: #FFD4B4;
+    --pastel-sky: #D4E4FF;
+    --pastel-coral: #FFB4B4;
 
-    /* 다크 베이스 */
-    --dark-bg: #0a0a0f;
-    --dark-surface: #1a1a2e;
-    --dark-card: #16213e;
+    /* 베이스 컬러 */
+    --bg-primary: #E8F4FF;
+    --bg-secondary: #F5F9FF;
+    --surface-white: #FFFFFF;
+    --text-primary: #2C3E50;
+    --text-secondary: #5A6C7D;
+    --text-light: #8696A7;
 
     /* 그라데이션 */
-    --bg-gradient: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f3460 100%);
-    --card-gradient: linear-gradient(145deg, #16213e 0%, #0f3460 100%);
+    --bg-gradient: linear-gradient(135deg, #E8F4FF 0%, #FFF5F8 100%);
+    --card-gradient-yellow: linear-gradient(135deg, #FFF4B7 0%, #FFE066 100%);
+    --card-gradient-mint: linear-gradient(135deg, #B4F8C8 0%, #7DE89F 100%);
+    --card-gradient-pink: linear-gradient(135deg, #FFB4D1 0%, #FF88B7 100%);
+    --card-gradient-blue: linear-gradient(135deg, #B4D4FF 0%, #88B0FF 100%);
+    --card-gradient-lavender: linear-gradient(135deg, #E5D4FF 0%, #C9AAFF 100%);
 
-    /* 네온 글로우 */
-    --glow-pink: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink), 0 0 30px var(--neon-pink);
-    --glow-cyan: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-cyan);
-    --glow-purple: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple), 0 0 30px var(--neon-purple);
-    --glow-green: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+    /* 그림자 */
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-large: 0 12px 32px rgba(0, 0, 0, 0.15);
+    --shadow-card: 0 6px 16px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
 
     /* 타이포그래피 */
-    --font-display: 'Orbitron', 'JetBrains Mono', monospace;
-    --font-body: 'JetBrains Mono', 'Courier New', monospace;
+    --font-display: 'Fredoka', 'Nunito', sans-serif;
+    --font-body: 'Nunito', 'Noto Sans KR', sans-serif;
 
     /* 스페이싱 */
     --spacing-xs: 0.5rem;
@@ -38,14 +49,22 @@
     --spacing-lg: 2rem;
     --spacing-xl: 3rem;
 
+    /* 보더 라디우스 */
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 28px;
+    --radius-xl: 36px;
+    --radius-card: 24px;
+
     /* 애니메이션 */
-    --transition-fast: 0.2s ease;
-    --transition-normal: 0.4s ease;
-    --transition-slow: 0.6s ease;
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* ========== 폰트 로딩 ========== */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
 
 /* ========== 기본 스타일 ========== */
 * {
@@ -56,7 +75,7 @@
 
 body {
     font-family: var(--font-body);
-    background: var(--dark-bg);
+    background: var(--bg-gradient);
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -69,15 +88,25 @@ body {
 body::before {
     content: '';
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--bg-gradient);
-    z-index: -3;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(180, 212, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 180, 209, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(180, 248, 200, 0.2) 0%, transparent 50%);
+    animation: floatBackground 20s ease-in-out infinite;
+    z-index: -1;
 }
 
-/* 사이버 그리드 배경 */
+@keyframes floatBackground {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(30px, -30px) rotate(1deg); }
+    66% { transform: translate(-20px, 20px) rotate(-1deg); }
+}
+
+/* 부드러운 점 패턴 */
 body::after {
     content: '';
     position: fixed;
@@ -85,41 +114,10 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image:
-        linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
-    background-size: 50px 50px;
-    z-index: -2;
-    animation: gridMove 20s linear infinite;
-}
-
-@keyframes gridMove {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(50px, 50px); }
-}
-
-/* 스캔라인 효과 */
-.scanlines {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1000;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.05) 2px,
-        rgba(0, 0, 0, 0.05) 4px
-    );
-    animation: scanlineMove 8s linear infinite;
-}
-
-@keyframes scanlineMove {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(4px); }
+    background-image: radial-gradient(circle, rgba(180, 212, 255, 0.3) 1px, transparent 1px);
+    background-size: 30px 30px;
+    z-index: -1;
+    opacity: 0.5;
 }
 
 /* ========== 캔버스 컨테이너 ========== */
@@ -134,170 +132,97 @@ body::after {
 
 /* p5.js 캔버스 스타일 */
 canvas {
-    box-shadow:
-        0 0 60px rgba(255, 16, 240, 0.3),
-        0 0 100px rgba(0, 240, 255, 0.2),
-        0 20px 60px rgba(0, 0, 0, 0.5);
-    border-radius: 20px;
-    border: 2px solid rgba(255, 16, 240, 0.3);
+    background: var(--surface-white);
+    box-shadow: var(--shadow-large);
+    border-radius: var(--radius-lg);
+    border: 6px solid var(--surface-white);
     position: relative;
-    animation: canvasPulse 4s ease-in-out infinite;
+    animation: canvasBounce 0.5s var(--bounce);
 }
 
-@keyframes canvasPulse {
-    0%, 100% {
-        box-shadow:
-            0 0 60px rgba(255, 16, 240, 0.3),
-            0 0 100px rgba(0, 240, 255, 0.2),
-            0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-    50% {
-        box-shadow:
-            0 0 80px rgba(255, 16, 240, 0.5),
-            0 0 120px rgba(0, 240, 255, 0.3),
-            0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-}
-
-/* ========== 네온 텍스트 효과 ========== */
-.neon-text {
-    font-family: var(--font-display);
-    color: var(--neon-pink);
-    text-shadow: var(--glow-pink);
-    animation: neonFlicker 2s ease-in-out infinite alternate;
-}
-
-@keyframes neonFlicker {
-    0%, 100% {
-        text-shadow: var(--glow-pink);
-        opacity: 1;
-    }
-    50% {
-        text-shadow:
-            0 0 5px var(--neon-pink),
-            0 0 10px var(--neon-pink);
-        opacity: 0.95;
-    }
-}
-
-/* ========== 글리치 효과 ========== */
-@keyframes glitch {
+@keyframes canvasBounce {
     0% {
-        transform: translate(0);
-    }
-    20% {
-        transform: translate(-2px, 2px);
-    }
-    40% {
-        transform: translate(-2px, -2px);
-    }
-    60% {
-        transform: translate(2px, 2px);
-    }
-    80% {
-        transform: translate(2px, -2px);
-    }
-    100% {
-        transform: translate(0);
-    }
-}
-
-.glitch {
-    animation: glitch 0.3s ease-in-out infinite;
-}
-
-/* ========== 파티클 효과 (선택적) ========== */
-.particle {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: var(--neon-cyan);
-    border-radius: 50%;
-    pointer-events: none;
-    animation: particleFloat 3s ease-in-out infinite;
-}
-
-@keyframes particleFloat {
-    0% {
-        transform: translateY(0) translateX(0);
+        transform: scale(0.9);
         opacity: 0;
     }
     50% {
-        opacity: 1;
+        transform: scale(1.02);
     }
     100% {
-        transform: translateY(-100px) translateX(20px);
-        opacity: 0;
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
-/* ========== 네온 버튼 효과 ========== */
-.neon-button {
-    background: transparent;
-    border: 2px solid var(--neon-cyan);
-    color: var(--neon-cyan);
-    padding: 12px 32px;
+/* ========== 버튼 스타일 ========== */
+.button {
+    background: var(--card-gradient-blue);
+    color: var(--text-primary);
+    border: 4px solid var(--surface-white);
+    border-radius: var(--radius-lg);
+    padding: 16px 32px;
     font-family: var(--font-display);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    font-size: 1.2rem;
     cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    transition: all var(--transition-normal);
     position: relative;
     overflow: hidden;
-    transition: all var(--transition-normal);
-    box-shadow: var(--glow-cyan);
 }
 
-.neon-button::before {
+.button::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 240, 255, 0.1);
-    transition: left var(--transition-normal);
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
 }
 
-.neon-button:hover::before {
-    left: 100%;
+.button:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
-.neon-button:hover {
-    background: rgba(0, 240, 255, 0.1);
-    box-shadow:
-        0 0 20px var(--neon-cyan),
-        0 0 40px var(--neon-cyan),
-        0 0 60px var(--neon-cyan);
-    transform: translateY(-2px);
+.button:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-hover);
 }
 
-/* ========== 카드 네온 효과 ========== */
-.card-glow-pink {
-    box-shadow: var(--glow-pink);
+.button:active {
+    transform: translateY(-2px) scale(0.98);
 }
 
-.card-glow-cyan {
-    box-shadow: var(--glow-cyan);
+/* ========== 카드 스타일 (p5.js에서 구현되지만 참고용) ========== */
+.card {
+    background: var(--surface-white);
+    border: 5px solid var(--surface-white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    transition: all var(--transition-normal);
 }
 
-.card-glow-purple {
-    box-shadow: var(--glow-purple);
+.card:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: var(--shadow-hover);
 }
 
-.card-glow-green {
-    box-shadow: var(--glow-green);
+.card-back {
+    background: var(--pastel-blue);
 }
 
 /* ========== 펄스 애니메이션 ========== */
 @keyframes pulse {
     0%, 100% {
         transform: scale(1);
-        opacity: 1;
     }
     50% {
-        transform: scale(1.05);
-        opacity: 0.8;
+        transform: scale(1.1);
     }
 }
 
@@ -305,18 +230,101 @@ canvas {
     animation: pulse 1s ease-in-out infinite;
 }
 
-/* ========== 로딩 스피너 (선택적) ========== */
+/* ========== 바운스 애니메이션 ========== */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.bounce {
+    animation: bounce 0.6s var(--bounce);
+}
+
+/* ========== 흔들림 애니메이션 ========== */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+    20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+/* ========== 깜빡임 애니메이션 ========== */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.blink {
+    animation: blink 1s ease-in-out infinite;
+}
+
+/* ========== 떠오르기 애니메이션 ========== */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* ========== UI 장식 요소 ========== */
+.decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-lavender));
+    opacity: 0.6;
+    pointer-events: none;
+    animation: float 4s ease-in-out infinite;
+}
+
+/* ========== 로딩 스피너 ========== */
 .spinner {
-    width: 50px;
-    height: 50px;
-    border: 3px solid transparent;
-    border-top-color: var(--neon-pink);
+    width: 60px;
+    height: 60px;
+    border: 6px solid var(--pastel-blue);
+    border-top-color: var(--pastel-pink);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* ========== 토스트 메시지 ========== */
+.toast {
+    background: var(--surface-white);
+    color: var(--text-primary);
+    padding: 16px 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-medium);
+    border: 3px solid var(--pastel-blue);
+    font-family: var(--font-display);
+    font-weight: 600;
+    animation: slideInDown 0.3s var(--bounce);
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* ========== 반응형 디자인 ========== */
@@ -332,10 +340,17 @@ canvas {
         --spacing-sm: 0.75rem;
         --spacing-md: 1rem;
         --spacing-lg: 1.5rem;
+        --radius-card: 16px;
+        --radius-lg: 20px;
     }
 
     canvas {
-        border-radius: 10px;
+        border-width: 4px;
+    }
+
+    .button {
+        padding: 12px 24px;
+        font-size: 1rem;
     }
 }
 
@@ -353,42 +368,58 @@ canvas {
 /* 고대비 모드 */
 @media (prefers-contrast: high) {
     :root {
-        --neon-pink: #FF69B4;
-        --neon-cyan: #00FFFF;
-        --neon-purple: #DA70D6;
+        --text-primary: #000000;
+        --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
+        --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .button,
+    .card {
+        border-width: 6px;
     }
 }
 
-/* ========== CRT 모니터 효과 (선택적 강화) ========== */
-.crt-effect {
-    position: relative;
-}
+/* ========== 다크모드 지원 (선택사항) ========== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1a1f2e;
+        --bg-secondary: #252a3a;
+        --surface-white: #2d3548;
+        --text-primary: #e8eef7;
+        --text-secondary: #b8c5d9;
+    }
 
-.crt-effect::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
-    pointer-events: none;
-    z-index: 999;
+    body::before {
+        opacity: 0.3;
+    }
 }
 
 /* ========== 커스텀 스크롤바 ========== */
 ::-webkit-scrollbar {
-    width: 10px;
-    background: var(--dark-surface);
+    width: 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--neon-purple);
-    border-radius: 5px;
-    box-shadow: var(--glow-purple);
+    background: var(--pastel-blue);
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--neon-pink);
-    box-shadow: var(--glow-pink);
+    background: var(--pastel-pink);
+}
+
+/* ========== 포커스 스타일 ========== */
+*:focus-visible {
+    outline: 3px solid var(--pastel-blue);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+}
+
+/* ========== 선택 영역 스타일 ========== */
+::selection {
+    background: var(--pastel-pink);
+    color: var(--text-primary);
 }
