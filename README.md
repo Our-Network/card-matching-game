@@ -85,6 +85,21 @@ debugWin()        // 강제 게임 클리어 (테스트용)
 debugSetTime(60)  // 시간 설정 (테스트용)
 ```
 
+## 📚 문서
+
+프로젝트의 모든 문서는 [docs](docs/) 폴더에서 찾을 수 있습니다.
+
+### 📖 주요 문서
+
+- **[사용자 가이드](docs/USER_GUIDE.md)** - 게임 방법, 난이도 가이드, 점수 시스템, 팁과 전략
+- **[API 레퍼런스](docs/API_REFERENCE.md)** - 전체 클래스 및 함수 API 문서
+- **[아키텍처](docs/ARCHITECTURE.md)** - 시스템 아키텍처 및 설계 문서
+- **[개발자 가이드](docs/DEVELOPER_GUIDE.md)** - 개발 환경 설정, 코딩 규칙, 테스팅, 디버깅
+- **[기여 가이드](docs/CONTRIBUTING.md)** - 프로젝트 기여 방법 및 규칙
+- **[디자인 가이드](DESIGN_GUIDE.md)** - 디자인 시스템 및 스타일 가이드
+
+전체 문서 목록은 [문서 인덱스](docs/README.md)를 참고하세요.
+
 ## 🎨 디자인 시스템
 
 자세한 디자인 가이드는 [DESIGN_GUIDE.md](DESIGN_GUIDE.md)를 참고하세요.
