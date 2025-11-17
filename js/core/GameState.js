@@ -27,6 +27,10 @@ class GameState {
         this._canFlip = true;
         this._matchedPairs = 0;
 
+        // 하트 시스템
+        this._hearts = 0;
+        this._maxHearts = 0;
+
         // 점수 및 시간
         this._score = 0;
         this._baseScore = 0;
@@ -47,6 +51,7 @@ class GameState {
         // 게임 결과
         this._isWin = false;
         this._endTime = null;
+        this._gameOverReason = null; // 'hearts', 'time', 'complete'
     }
 
     // ========== Phase Management ==========
@@ -71,6 +76,19 @@ class GameState {
     /** @returns {number} 전체 카드 쌍 개수 */
     get totalPairs() {
         return this._difficulty ? this._difficulty.pairs : 0;
+    }
+
+    // ========== Hearts ==========
+
+    /** @returns {number} 현재 하트 개수 */
+    get hearts() { return this._hearts; }
+
+    /** @returns {number} 최대 하트 개수 */
+    get maxHearts() { return this._maxHearts; }
+
+    /** @returns {boolean} 하트가 0개인지 */
+    isHeartsEmpty() {
+        return this._hearts <= 0;
     }
 
     // ========== Cards ==========
@@ -168,6 +186,9 @@ class GameState {
     /** @returns {boolean} */
     get isWin() { return this._isWin; }
 
+    /** @returns {string|null} 게임 종료 원인 */
+    get gameOverReason() { return this._gameOverReason; }
+
     /**
      * 게임 결과 통계 반환
      * @returns {Object}
@@ -175,10 +196,13 @@ class GameState {
     getResultStats() {
         return {
             isWin: this._isWin,
+            gameOverReason: this._gameOverReason,
             score: this._score,
             baseScore: this._baseScore,
             comboBonus: this._comboBonus,
             timeBonus: this._timeBonus,
+            heartsRemaining: this._hearts,
+            maxHearts: this._maxHearts,
             elapsedTime: this.getElapsedSeconds(),
             timeRemaining: this._timeRemaining,
             attempts: this._attempts,
@@ -186,6 +210,8 @@ class GameState {
             failCount: this._failCount,
             accuracy: this.getAccuracy(),
             maxCombo: this._maxCombo,
+            matchedPairs: this._matchedPairs,
+            totalPairs: this.totalPairs,
             difficulty: this._difficulty ? this._difficulty.name : 'N/A'
         };
     }
@@ -208,6 +234,8 @@ class GameState {
         this._difficulty = difficulty;
         this._timeLimitSeconds = difficulty.timeLimit;
         this._timeRemaining = difficulty.timeLimit;
+        this._maxHearts = difficulty.hearts || 5;
+        this._hearts = this._maxHearts;
     }
 
     /**
@@ -277,6 +305,9 @@ class GameState {
         this._combo = 0;
 
         this._timeRemaining = Math.max(0, this._timeRemaining - timePenalty);
+
+        // 하트 감소
+        this._hearts = Math.max(0, this._hearts - 1);
     }
 
     /**
@@ -303,19 +334,25 @@ class GameState {
         this._phase = GAME_STATE.RESULT;
         this._isWin = true;
         this._endTime = Date.now();
+        this._gameOverReason = 'complete';
 
         // 시간 보너스 계산
         this._timeBonus = this._timeRemaining * 2;
-        this._score += this._timeBonus;
+
+        // 하트 보너스 계산 (남은 하트당 10점)
+        const heartBonus = this._hearts * 10;
+        this._score += this._timeBonus + heartBonus;
     }
 
     /**
      * 게임 종료 (패배)
+     * @param {string} reason - 'hearts' | 'time'
      */
-    endGameLose() {
+    endGameLose(reason = 'time') {
         this._phase = GAME_STATE.RESULT;
         this._isWin = false;
         this._endTime = Date.now();
+        this._gameOverReason = reason;
     }
 
     /**
@@ -329,6 +366,8 @@ class GameState {
         this._secondCard = null;
         this._canFlip = true;
         this._matchedPairs = 0;
+        this._hearts = 0;
+        this._maxHearts = 0;
         this._score = 0;
         this._baseScore = 0;
         this._comboBonus = 0;
@@ -343,6 +382,7 @@ class GameState {
         this._maxCombo = 0;
         this._isWin = false;
         this._endTime = null;
+        this._gameOverReason = null;
     }
 
     /**
@@ -354,6 +394,8 @@ class GameState {
             phase: this._phase,
             difficulty: this._difficulty ? this._difficulty.name : null,
             matchedPairs: this._matchedPairs,
+            hearts: this._hearts,
+            maxHearts: this._maxHearts,
             score: this._score,
             timeRemaining: this._timeRemaining,
             attempts: this._attempts,

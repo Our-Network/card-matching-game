@@ -251,7 +251,7 @@ class UIRenderer {
         this._drawTimeDisplay(width / 2, 40, gameState.timeRemaining);
 
         // 오른쪽: 하트 (남은 시도)
-        this._drawHeartDisplay(width - 100, 40, gameState.lives || 3);
+        this._drawHeartDisplay(width - 120, 40, gameState.hearts, gameState.maxHearts);
     }
 
     _drawScoreDisplay(x, y, score) {
@@ -298,21 +298,33 @@ class UIRenderer {
         pop();
     }
 
-    _drawHeartDisplay(x, y, lives) {
+    _drawHeartDisplay(x, y, hearts, maxHearts) {
         push();
         textAlign(CENTER, CENTER);
 
-        // 하트 아이콘
-        fill(this.colors.heart);
+        // 하트 아이콘 (하트가 적으면 회색으로)
+        const heartColor = hearts > maxHearts * 0.3 ? this.colors.heart : '#999999';
+        fill(heartColor);
         noStroke();
         textSize(28);
         text('❤️', x - 30, y - 2);
 
-        // 개수
-        fill(this.colors.text.primary);
+        // 개수 (하트가 0이면 회색으로)
+        const textColor = hearts > 0 ? this.colors.text.primary : '#999999';
+        fill(textColor);
         textSize(this.fonts.ui);
         textStyle(BOLD);
-        text(`×${lives}`, x + 15, y);
+        text(`×${hearts}`, x + 15, y);
+        
+        // 하트가 적을 때 경고 효과 (펄스 애니메이션)
+        if (hearts <= maxHearts * 0.3 && hearts > 0) {
+            push();
+            const pulseAlpha = map(sin(millis() * 0.01), -1, 1, 50, 150);
+            fill(255, 0, 0, pulseAlpha);
+            noStroke();
+            ellipse(x, y, 80, 40);
+            pop();
+        }
         pop();
     }
 
@@ -325,11 +337,31 @@ class UIRenderer {
         this._drawGradientBackground();
         this._drawWaves(height - 150);
 
-        // 승리 여부 판단
-        const isWin = stats.isComplete;
+        // 승리 여부 및 원인 판단
+        const isWin = stats.isWin;
+        const reason = stats.gameOverReason;
 
-        // 캐릭터 (크게)
+        // 캐릭터 (크게) - 표정은 승리 여부에 따라
         this._drawBearCharacter(width / 2, height / 2 + 50, 1.3, isWin);
+
+        // 아이콘 표시 (승리/실패에 따라)
+        let icon = '🎉';
+        if (!isWin) {
+            if (reason === 'hearts') {
+                icon = '💔';
+            } else if (reason === 'time') {
+                icon = '⏰';
+            }
+        }
+
+        // 아이콘 그리기
+        push();
+        textAlign(CENTER, CENTER);
+        textSize(60);
+        noStroke();
+        const iconBounce = sin(millis() * 0.005) * 5;
+        text(icon, width / 2, 150 + iconBounce);
+        pop();
 
         // 결과 타이틀
         push();
@@ -337,7 +369,14 @@ class UIRenderer {
         textSize(this.fonts.title);
         textStyle(BOLD);
 
-        const titleText = isWin ? '축하합니다! 🎉' : '시간 초과! ⏰';
+        let titleText;
+        if (isWin) {
+            titleText = '성공!';
+        } else if (reason === 'hearts') {
+            titleText = '실패!';
+        } else {
+            titleText = '시간 초과!';
+        }
 
         fill(this.colors.text.white);
         stroke(this.colors.text.primary);
@@ -348,21 +387,34 @@ class UIRenderer {
         // 통계 박스
         this._drawStatsBox(width / 2, 250, stats);
 
-        // 다시하기 버튼
+        // 버튼들
+        // 재시도 버튼 (같은 난이도)
         this._drawPillButton(
-            width / 2,
+            width / 2 - 120,
             height - 120,
-            220,
+            200,
             70,
-            '다시하기',
-            this.colors.button.easy,
+            '재시도',
+            this.colors.button.normal,
             'retry'
+        );
+        
+        // 난이도 선택 버튼
+        this._drawPillButton(
+            width / 2 + 120,
+            height - 120,
+            200,
+            70,
+            '난이도 선택',
+            this.colors.button.hard,
+            'difficulty'
         );
     }
 
     _drawStatsBox(x, y, stats) {
+        const isWin = stats.isWin;
         const boxWidth = 400;
-        const boxHeight = 280;
+        const boxHeight = isWin ? 320 : 300;
 
         push();
         // 박스 배경
@@ -377,48 +429,69 @@ class UIRenderer {
         fill(this.colors.text.primary);
 
         const statY = y - 90;
-        const lineHeight = 45;
+        const lineHeight = 40;
 
         // 난이도
-        textSize(this.fonts.ui);
-        text(`난이도: ${stats.difficulty}`, x, statY);
+        textSize(this.fonts.ui - 2);
+        textStyle(NORMAL);
+        text(`난이도: ${stats.difficulty}`, x, statY + lineHeight * 0);
 
         // 점수
         textSize(this.fonts.ui);
         textStyle(BOLD);
-        text(`점수: ${stats.score}점`, x, statY + lineHeight);
+        text(`점수: ${stats.score}점`, x, statY + lineHeight * 1);
+
+        // 하트 정보
+        textSize(this.fonts.ui - 2);
+        textStyle(NORMAL);
+        const heartText = isWin 
+            ? `남은 하트: ${stats.heartsRemaining}/${stats.maxHearts}`
+            : `하트: 0/${stats.maxHearts}`;
+        text(heartText, x, statY + lineHeight * 2);
 
         // 시간
-        textSize(this.fonts.ui);
-        textStyle(NORMAL);
-        const minutes = floor(stats.timeElapsed / 60);
-        const seconds = stats.timeElapsed % 60;
-        text(`시간: ${minutes}분 ${seconds}초`, x, statY + lineHeight * 2);
+        const minutes = floor(stats.elapsedTime / 60);
+        const seconds = stats.elapsedTime % 60;
+        text(`플레이 시간: ${minutes}분 ${seconds}초`, x, statY + lineHeight * 3);
+
+        // 맞춘 카드 쌍
+        text(`맞춘 짝: ${stats.matchedPairs}/${stats.totalPairs}`, x, statY + lineHeight * 4);
 
         // 시도 횟수
-        text(`시도: ${stats.attempts}회`, x, statY + lineHeight * 3);
+        text(`시도: ${stats.attempts}회`, x, statY + lineHeight * 5);
 
         // 정확도
-        const accuracy = stats.attempts > 0
-            ? floor((stats.matches / stats.attempts) * 100)
-            : 0;
-        text(`정확도: ${accuracy}%`, x, statY + lineHeight * 4);
+        text(`정확도: ${stats.accuracy}%`, x, statY + lineHeight * 6);
+
+        // 최대 콤보 (승리 시에만)
+        if (isWin && stats.maxCombo > 0) {
+            text(`최대 콤보: ${stats.maxCombo}`, x, statY + lineHeight * 7);
+        }
 
         pop();
     }
 
-    handleResultClick(mx, my) {
-        // 다시하기 버튼
+        handleResultClick(mx, my) {
         const btnY = height - 120;
-        const btnWidth = 220;
+        const btnWidth = 200;
         const btnHeight = 70;
 
-        if (mx > width / 2 - btnWidth / 2 &&
-            mx < width / 2 + btnWidth / 2 &&
+        // 재시도 버튼 (왼쪽)
+        if (mx > width / 2 - 120 - btnWidth / 2 &&
+            mx < width / 2 - 120 + btnWidth / 2 &&
             my > btnY - btnHeight / 2 &&
             my < btnY + btnHeight / 2) {
             return 'retry';
         }
+        
+        // 난이도 선택 버튼 (오른쪽)
+        if (mx > width / 2 + 120 - btnWidth / 2 &&
+            mx < width / 2 + 120 + btnWidth / 2 &&
+            my > btnY - btnHeight / 2 &&
+            my < btnY + btnHeight / 2) {
+            return 'difficulty';
+        }
+        
         return null;
     }
 

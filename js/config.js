@@ -14,6 +14,7 @@ const DIFFICULTY = {
         pointsPerMatch: 10,
         timePenalty: 5,     // 실패 시 5초 감점
         previewTime: 5000,  // 5초 미리 보기
+        hearts: 5,          // 하트 5개
         specialCards: {
             bonusPairs: 2   // 정답 짝 카드 2장
         },
@@ -32,6 +33,7 @@ const DIFFICULTY = {
         pointsPerMatch: 15,
         timePenalty: 10,
         previewTime: 7000,  // 7초 미리 보기
+        hearts: 10,         // 하트 10개
         specialCards: {
             bonusPairs: 2   // 정답 짝 카드 2장
         },
@@ -50,6 +52,7 @@ const DIFFICULTY = {
         pointsPerMatch: 20,
         timePenalty: 15,
         previewTime: 0,     // 미리 보기 없음
+        hearts: 20,         // 하트 20개
         specialCards: {
             bombs: 2        // 폭탄 카드 2장
         },
@@ -69,6 +72,7 @@ const DIFFICULTY = {
         timePenalty: 18,
         matchingRule: 3,    // 3장 매칭
         previewTime: 0,     // 미리 보기 없음
+        hearts: 25,         // 하트 25개
         specialCards: {
             bombs: 2        // 폭탄 카드 2장
         },
@@ -87,6 +91,7 @@ const DIFFICULTY = {
         pointsPerMatch: 30,
         timePenalty: 20,
         previewTime: 0,     // 미리 보기 없음
+        hearts: 25,         // 하트 25개
         specialCards: {
             bombs: 4,       // 폭탄 카드 4장
             shuffle: true,  // 카드 섞임 효과
@@ -158,7 +163,8 @@ const SOUNDS = {
     complete: 'assets/sounds/complete.mp3',
     bomb: 'assets/sounds/bomb.mp3',
     bonus: 'assets/sounds/bonus.mp3',
-    shuffle: 'assets/sounds/shuffle.mp3'
+    shuffle: 'assets/sounds/shuffle.mp3',
+    heartLost: 'assets/sounds/heartLost.mp3'
 };
 
 // 특수 카드 타입
