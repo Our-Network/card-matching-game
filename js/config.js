@@ -9,6 +9,7 @@ const DIFFICULTY = {
         name: '하',
         pairs: 4,           // 4쌍 = 8장
         timeLimit: 180,     // 3분
+        previewDuration: 5, // 5초간 카드 미리보기
         gridCols: 4,
         gridRows: 2,
         pointsPerMatch: 10,
@@ -26,6 +27,7 @@ const DIFFICULTY = {
         name: '중',
         pairs: 8,           // 8쌍 = 16장
         timeLimit: 120,     // 2분
+        previewDuration: 7, // 7초간 카드 미리보기
         gridCols: 4,
         gridRows: 4,
         pointsPerMatch: 15,
@@ -43,6 +45,7 @@ const DIFFICULTY = {
         name: '상',
         pairs: 15,          // 15쌍 = 30장 (폭탄 2장 포함하여 총 32장)
         timeLimit: 90,      // 1.5분
+        previewDuration: 0, // 미리보기 없음 (즉시 시작)
         gridCols: 8,
         gridRows: 4,
         pointsPerMatch: 20,
@@ -78,6 +81,7 @@ const DIFFICULTY = {
         name: '지옥',
         pairs: 22,          // 22쌍 = 44장 (폭탄 4장 포함하여 총 48장)
         timeLimit: 60,      // 1분
+        previewDuration: 0, // 미리보기 없음 (즉시 시작)
         gridCols: 8,
         gridRows: 6,
         pointsPerMatch: 30,
@@ -118,6 +122,7 @@ const CARD_CONFIG = {
 const GAME_STATE = {
     START: 'start',         // 시작 화면
     DIFFICULTY: 'difficulty', // 난이도 선택
+    PREVIEW: 'preview',     // 카드 미리보기
     PLAYING: 'playing',     // 게임 중
     RESULT: 'result'        // 결과 화면
 };

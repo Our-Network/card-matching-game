@@ -55,6 +55,10 @@ function draw() {
             uiRenderer.drawDifficultyScreen();
             break;
 
+        case GAME_STATE.PREVIEW:
+            drawPreviewMode();
+            break;
+
         case GAME_STATE.PLAYING:
             drawGamePlay();
             break;
@@ -76,6 +80,38 @@ function draw() {
             textAlign(CENTER, CENTER);
             text('Unknown state', width / 2, height / 2);
     }
+}
+
+/**
+ * 미리보기 모드 화면 그리기
+ */
+function drawPreviewMode() {
+    // 배경
+    const diffColor = gameState.difficulty.color;
+    background(diffColor.bg);
+
+    // 카드 렌더링 (모두 앞면으로)
+    cardRenderer.drawAllCards(gameState.cards, null);
+
+    // 중앙에 카운트다운 표시
+    const remaining = gameState.previewTimeRemaining;
+
+    push();
+    fill(0, 0, 0, 150);
+    noStroke();
+    rectMode(CENTER);
+    rect(width / 2, height / 2, 300, 200, 20);
+
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(24);
+    text('카드를 기억하세요!', width / 2, height / 2 - 40);
+
+    textSize(72);
+    textStyle(BOLD);
+    fill(255, 220, 0);
+    text(remaining, width / 2, height / 2 + 30);
+    pop();
 }
 
 /**
@@ -116,6 +152,10 @@ function mouseClicked() {
             handleDifficultyClick();
             break;
 
+        case GAME_STATE.PREVIEW:
+            // 미리보기 중에는 클릭 무시
+            break;
+
         case GAME_STATE.PLAYING:
             handleGameClick();
             break;
@@ -130,9 +170,12 @@ function mouseClicked() {
  * 마우스 이동 이벤트
  */
 function mouseMoved() {
+    // 게임 플레이 중에만 호버 처리
     if (gameState.phase === GAME_STATE.PLAYING) {
         // 호버 중인 카드 찾기
         hoveredCard = cardManager.findCardAt(gameState.cards, mouseX, mouseY);
+    } else {
+        hoveredCard = null;
     }
 }
 
@@ -184,11 +227,6 @@ function handleDifficultyClick() {
         const difficulty = DIFFICULTY[difficultyKey];
         gameManager.startGame(difficulty);
         console.log(`Started game with difficulty: ${difficulty.name}`);
-
-        // 게임 시작 시 헬퍼 메시지 표시
-        setTimeout(() => {
-            uiRenderer.showHelperMessage('💡 카드를 클릭하여 짝을 찾으세요!', 4000);
-        }, 500);
     }
 }
 
@@ -246,6 +284,22 @@ function initializeInstances() {
  * 게임 매니저 콜백 설정
  */
 function setupGameCallbacks() {
+    // 미리보기 시작
+    gameManager.onPreviewStart = (duration) => {
+        console.log(`Preview started: ${duration}s`);
+    };
+
+    // 미리보기 업데이트
+    gameManager.onPreviewUpdate = (remaining) => {
+        console.log(`Preview remaining: ${remaining}s`);
+    };
+
+    // 미리보기 종료
+    gameManager.onPreviewEnd = () => {
+        console.log('Preview ended, game starting...');
+        uiRenderer.showMessage('게임 시작! 💡', 1500, 'success');
+    };
+
     // 카드 뒤집기
     gameManager.onCardFlip = (card) => {
         console.log('Card flipped:', card.id);

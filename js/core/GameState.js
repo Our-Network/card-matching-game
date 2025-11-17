@@ -47,6 +47,10 @@ class GameState {
         // 게임 결과
         this._isWin = false;
         this._endTime = null;
+
+        // 미리보기 관련
+        this._previewTimeRemaining = 0;
+        this._isInPreview = false;
     }
 
     // ========== Phase Management ==========
@@ -58,7 +62,13 @@ class GameState {
     isPlaying() { return this._phase === GAME_STATE.PLAYING; }
 
     /** @returns {boolean} */
+    isInPreview() { return this._phase === GAME_STATE.PREVIEW; }
+
+    /** @returns {boolean} */
     isGameOver() { return this._phase === GAME_STATE.RESULT; }
+
+    /** @returns {number} */
+    get previewTimeRemaining() { return this._previewTimeRemaining; }
 
     // ========== Difficulty ==========
 
@@ -216,11 +226,31 @@ class GameState {
     }
 
     /**
-     * 게임 시작
+     * 미리보기 시작
+     * @param {number} duration - 미리보기 시간(초)
+     */
+    startPreview(duration) {
+        this._phase = GAME_STATE.PREVIEW;
+        this._previewTimeRemaining = duration;
+        this._isInPreview = true;
+    }
+
+    /**
+     * 미리보기 시간 업데이트
+     * @param {number} remaining - 남은 시간(초)
+     */
+    updatePreviewTime(remaining) {
+        this._previewTimeRemaining = Math.max(0, remaining);
+    }
+
+    /**
+     * 미리보기 종료 후 게임 시작
      */
     startGame() {
         this._startTime = Date.now();
         this._phase = GAME_STATE.PLAYING;
+        this._isInPreview = false;
+        this._previewTimeRemaining = 0;
     }
 
     /**
@@ -340,6 +370,8 @@ class GameState {
         this._maxCombo = 0;
         this._isWin = false;
         this._endTime = null;
+        this._previewTimeRemaining = 0;
+        this._isInPreview = false;
     }
 
     /**

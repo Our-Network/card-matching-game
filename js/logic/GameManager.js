@@ -29,6 +29,12 @@ class GameManager {
 
         // 타이머 관련
         this.timerInterval = null;
+        this.previewInterval = null;
+
+        // 콜백 추가
+        this.onPreviewStart = null;
+        this.onPreviewUpdate = null;
+        this.onPreviewEnd = null;
     }
 
     // ========== 게임 초기화 ==========
@@ -52,13 +58,85 @@ class GameManager {
         const cards = this.cardManager.createDeck(difficulty, theme);
         this.state.setCards(cards);
 
+        // 미리보기가 있으면 미리보기 시작, 없으면 바로 게임 시작
+        const previewDuration = difficulty.previewDuration || 0;
+
+        if (previewDuration > 0) {
+            this._startPreview(previewDuration);
+        } else {
+            this._startPlaying();
+        }
+
+        console.log(`Game started: ${difficulty.name} difficulty, ${cards.length} cards, preview: ${previewDuration}s`);
+    }
+
+    /**
+     * 미리보기 시작 (내부)
+     * @private
+     * @param {number} duration - 미리보기 시간(초)
+     */
+    _startPreview(duration) {
+        // 미리보기 상태로 전환
+        this.state.startPreview(duration);
+
+        // 모든 카드 앞면 보이기
+        this.state.cards.forEach(card => {
+            if (!card.isFaceUp) {
+                card.flip();
+            }
+        });
+
+        // 미리보기 콜백 호출
+        this._notifyPreviewStart(duration);
+
+        // 미리보기 타이머 시작
+        let remaining = duration;
+        this.previewInterval = setInterval(() => {
+            remaining--;
+            this.state.updatePreviewTime(remaining);
+            this._notifyPreviewUpdate(remaining);
+
+            if (remaining <= 0) {
+                this._endPreview();
+            }
+        }, 1000);
+    }
+
+    /**
+     * 미리보기 종료 후 게임 플레이 시작 (내부)
+     * @private
+     */
+    _endPreview() {
+        // 미리보기 타이머 정지
+        if (this.previewInterval) {
+            clearInterval(this.previewInterval);
+            this.previewInterval = null;
+        }
+
+        // 모든 카드 뒤집기
+        this.state.cards.forEach(card => {
+            if (card.isFaceUp && !card.isMatched) {
+                card.flip();
+            }
+        });
+
+        // 미리보기 종료 콜백
+        this._notifyPreviewEnd();
+
+        // 게임 플레이 시작
+        this._startPlaying();
+    }
+
+    /**
+     * 게임 플레이 시작 (내부)
+     * @private
+     */
+    _startPlaying() {
         // 게임 시작
         this.state.startGame();
 
         // 타이머 시작
         this._startTimer();
-
-        console.log(`Game started: ${difficulty.name} difficulty, ${cards.length} cards`);
     }
 
     /**
@@ -66,8 +144,20 @@ class GameManager {
      */
     resetGame() {
         this._stopTimer();
+        this._stopPreview();
         this.cardManager.resetAllCards(this.state.cards);
         this.state.reset();
+    }
+
+    /**
+     * 미리보기 타이머 정지 (내부)
+     * @private
+     */
+    _stopPreview() {
+        if (this.previewInterval) {
+            clearInterval(this.previewInterval);
+            this.previewInterval = null;
+        }
     }
 
     // ========== 카드 클릭 처리 ==========
@@ -80,6 +170,11 @@ class GameManager {
      * @returns {boolean} 클릭이 처리되었는지 여부
      */
     handleClick(x, y) {
+        // 미리보기 중에는 클릭 무시
+        if (this.state.isInPreview()) {
+            return false;
+        }
+
         if (!this.state.isPlaying()) {
             return false;
         }
@@ -289,6 +384,24 @@ class GameManager {
     }
 
     // ========== 콜백 통지 ==========
+
+    _notifyPreviewStart(duration) {
+        if (this.onPreviewStart) {
+            this.onPreviewStart(duration);
+        }
+    }
+
+    _notifyPreviewUpdate(remaining) {
+        if (this.onPreviewUpdate) {
+            this.onPreviewUpdate(remaining);
+        }
+    }
+
+    _notifyPreviewEnd() {
+        if (this.onPreviewEnd) {
+            this.onPreviewEnd();
+        }
+    }
 
     _notifyCardFlip(card) {
         if (this.onCardFlip) {
