@@ -29,6 +29,7 @@ class GameManager {
 
         // 타이머 관련
         this.timerInterval = null;
+        this.previewTimeout = null;
     }
 
     // ========== 게임 초기화 ==========
@@ -52,13 +53,50 @@ class GameManager {
         const cards = this.cardManager.createDeck(difficulty, theme);
         this.state.setCards(cards);
 
-        // 게임 시작
+        // 미리 보기 처리
+        const previewTime = difficulty.previewTime || 0;
+
+        if (previewTime > 0) {
+            // PREVIEW 상태로 설정
+            this.state.setPhase(GAME_STATE.PREVIEW);
+
+            // 모든 카드 앞면으로 표시
+            cards.forEach(card => card.setFlipped(true));
+
+            // previewTime 후 게임 시작
+            this.previewTimeout = setTimeout(() => {
+                this._startPlaying();
+            }, previewTime);
+
+            console.log(`Game preview started: ${difficulty.name} difficulty, ${previewTime}ms preview`);
+        } else {
+            // 미리 보기 없음 - 즉시 게임 시작
+            this.state.startGame();
+            this._startTimer();
+            console.log(`Game started: ${difficulty.name} difficulty, ${cards.length} cards (no preview)`);
+        }
+    }
+
+    /**
+     * 미리 보기 종료 후 게임 시작
+     *
+     * @private
+     */
+    _startPlaying() {
+        // 모든 카드를 뒷면으로 뒤집기
+        this.state.cards.forEach(card => {
+            if (!card.isMatched) {
+                card.setFlipped(false);
+            }
+        });
+
+        // PLAYING 상태로 전환
         this.state.startGame();
 
         // 타이머 시작
         this._startTimer();
 
-        console.log(`Game started: ${difficulty.name} difficulty, ${cards.length} cards`);
+        console.log('Preview ended, game playing started');
     }
 
     /**
@@ -66,6 +104,7 @@ class GameManager {
      */
     resetGame() {
         this._stopTimer();
+        this._clearPreviewTimeout();
         this.cardManager.resetAllCards(this.state.cards);
         this.state.reset();
     }
@@ -80,6 +119,11 @@ class GameManager {
      * @returns {boolean} 클릭이 처리되었는지 여부
      */
     handleClick(x, y) {
+        // PREVIEW 상태에서는 클릭 무시
+        if (this.state.isPreview()) {
+            return false;
+        }
+
         if (!this.state.isPlaying()) {
             return false;
         }
@@ -260,6 +304,18 @@ class GameManager {
         }
     }
 
+    /**
+     * 미리 보기 타이머 정리
+     *
+     * @private
+     */
+    _clearPreviewTimeout() {
+        if (this.previewTimeout) {
+            clearTimeout(this.previewTimeout);
+            this.previewTimeout = null;
+        }
+    }
+
     // ========== 게임 종료 ==========
 
     /**
@@ -269,6 +325,7 @@ class GameManager {
      */
     _completeGame() {
         this._stopTimer();
+        this._clearPreviewTimeout();
         this.state.endGameWin();
         this._notifyGameComplete();
 
@@ -282,6 +339,7 @@ class GameManager {
      */
     _gameOver() {
         this._stopTimer();
+        this._clearPreviewTimeout();
         this.state.endGameLose();
         this._notifyGameOver();
 
