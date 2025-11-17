@@ -26,6 +26,7 @@ class GameManager {
         this.onGameOver = null;
         this.onScoreChange = null;
         this.onTimeUpdate = null;
+        this.onHeartLost = null;
 
         // 타이머 관련
         this.timerInterval = null;
@@ -266,11 +267,47 @@ class GameManager {
     _handleMismatch(card1, card2) {
         // 시간 페널티
         const timePenalty = this.state.difficulty.timePenalty || 0;
+
+        // 하트 감소 전 개수 저장
+        const previousHearts = this.state.hearts;
+
+        // 상태 업데이트 (하트 감소 포함)
         this.state.recordMismatch(timePenalty);
+
+        // 하트 감소 콜백 호출
+        if (this.state.hearts < previousHearts) {
+            this._notifyHeartLost(this.state.hearts);
+        }
 
         // 콜백 호출
         this._notifyMismatch(card1, card2, timePenalty);
         this._notifyTimeUpdate();
+
+        // 하트가 0이 되면 게임 오버
+        if (this.state.isHeartsEmpty()) {
+            // 카드를 먼저 뒤집은 후 게임 오버 처리
+            const flipAnimDuration = 300;
+            setTimeout(() => {
+                if (!card1.isMatched && typeof cardRenderer !== 'undefined') {
+                    cardRenderer.animateFlip(card1, flipAnimDuration, false);
+                } else if (!card1.isMatched) {
+                    card1.flip();
+                }
+
+                if (!card2.isMatched && typeof cardRenderer !== 'undefined') {
+                    cardRenderer.animateFlip(card2, flipAnimDuration, false);
+                } else if (!card2.isMatched) {
+                    card2.flip();
+                }
+
+                // 애니메이션 완료 후 게임 오버
+                setTimeout(() => {
+                    this.state.clearSelection();
+                    this._gameOver('hearts');
+                }, flipAnimDuration);
+            }, CARD_CONFIG.mismatchDelay || 1000);
+            return;
+        }
 
         // 카드 뒤집기 애니메이션 (지연)
         const flipAnimDuration = 300;
@@ -314,7 +351,7 @@ class GameManager {
 
             // 시간 초과
             if (remaining <= 0) {
-                this._gameOver();
+                this._gameOver('time');
             }
         }, 1000);
     }
@@ -363,11 +400,12 @@ class GameManager {
      * 게임 오버
      *
      * @private
+     * @param {string} reason - 'hearts' | 'time'
      */
-    _gameOver() {
+    _gameOver(reason = 'time') {
         this._stopTimer();
         this._clearPreviewTimeout();
-        this.state.endGameLose();
+        this.state.endGameLose(reason);
         this._notifyGameOver();
 
         console.log('Game Over!', this.state.getResultStats());
@@ -405,6 +443,12 @@ class GameManager {
         }
     }
 
+    _notifyHeartLost(remainingHearts) {
+        if (this.onHeartLost) {
+            this.onHeartLost(remainingHearts);
+        }
+    }
+
     _notifyGameComplete() {
         if (this.onGameComplete) {
             this.onGameComplete(this.state.getResultStats());
@@ -429,6 +473,8 @@ class GameManager {
             phase: this.state.phase,
             difficulty: this.state.difficulty ? this.state.difficulty.name : null,
             score: this.state.score,
+            hearts: this.state.hearts,
+            maxHearts: this.state.maxHearts,
             timeRemaining: this.state.timeRemaining,
             matchedPairs: this.state.matchedPairs,
             totalPairs: this.state.totalPairs,

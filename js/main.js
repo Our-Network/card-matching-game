@@ -215,7 +215,15 @@ function handleResultClick() {
         isConfettiActive = false;
         particleSystem.clear();
 
+        // 현재 난이도로 재시작
+        const difficulty = gameState.difficulty;
+        gameManager.startGame(difficulty);
+    } else if (button === 'difficulty') {
+        // 난이도 선택 화면으로 이동
+        isConfettiActive = false;
+        particleSystem.clear();
         gameManager.resetGame();
+        gameState.setPhase(GAME_STATE.DIFFICULTY);
     }
 }
 
@@ -288,6 +296,20 @@ function setupGameCallbacks() {
         }
     };
 
+    // 하트 감소
+    gameManager.onHeartLost = (remainingHearts) => {
+        console.log(`Heart lost! Remaining: ${remainingHearts}`);
+        
+        if (remainingHearts === 0) {
+            uiRenderer.showMessage('💔 하트를 모두 소진했어요!', 1500, 'error');
+        } else if (remainingHearts <= gameState.maxHearts * 0.3) {
+            uiRenderer.showMessage(`💔 하트 ${remainingHearts}개 남음!`, 1200, 'error');
+        }
+        
+        // 하트 감소 효과음
+        soundManager.play('mismatch', 0.8);
+    };
+
     // 게임 완료
     gameManager.onGameComplete = (stats) => {
         console.log('Game completed!', stats);
@@ -309,8 +331,16 @@ function setupGameCallbacks() {
     // 게임 오버
     gameManager.onGameOver = (stats) => {
         console.log('Game over!', stats);
+        
+        let message = '게임 오버!';
+        if (stats.gameOverReason === 'hearts') {
+            message = '하트 소진! 💔';
+        } else if (stats.gameOverReason === 'time') {
+            message = '시간 초과! ⏰';
+        }
+        
         setTimeout(() => {
-            uiRenderer.showMessage('시간 초과! ⏰', 2000, 'error');
+            uiRenderer.showMessage(message, 2000, 'error');
         }, 500);
     };
 }
