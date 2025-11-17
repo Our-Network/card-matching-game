@@ -34,15 +34,29 @@ class CardManager {
         }
 
         const pairs = difficulty.pairs;
-        const totalCards = pairs * 2;
+        const answerPairs = difficulty.answerPairs || 0;
+        const answerPairCount = difficulty.answerPairCount || 2;
+        const bombCount = difficulty.bombCount || 0;
 
-        // 1. 카드 쌍 생성
+        // 1. 일반 카드 쌍 생성
         const cards = this._generateCardPairs(pairs, theme);
 
-        // 2. 카드 섞기
+        // 2. 정답 짝 카드 생성
+        if (answerPairs > 0) {
+            const answerCards = this._generateAnswerPairCards(answerPairs, answerPairCount, theme);
+            cards.push(...answerCards);
+        }
+
+        // 3. 폭탄 카드 생성
+        if (bombCount > 0) {
+            const bombCards = this._generateBombCards(bombCount);
+            cards.push(...bombCards);
+        }
+
+        // 4. 카드 섞기
         const shuffled = ArrayUtils.shuffle(cards);
 
-        // 3. 그리드 좌표 계산 및 할당
+        // 5. 그리드 좌표 계산 및 할당
         this._assignPositions(shuffled, difficulty);
 
         return shuffled;
@@ -60,14 +74,70 @@ class CardManager {
         const cards = [];
         const imagePaths = this._getImagePaths(theme, pairs);
 
+        // 고유 ID를 위해 큰 숫자로 시작 (정답 짝, 폭탄과 구분)
+        const baseId = 1000;
+
         for (let id = 0; id < pairs; id++) {
             const imagePath = imagePaths[id] || `assets/images/cards/placeholder_${id}.png`;
 
             // 같은 ID를 가진 카드 2개 생성 (짝)
             for (let j = 0; j < 2; j++) {
-                const card = new Card(id, 0, 0, imagePath);
+                const card = new Card(baseId + id, 0, 0, imagePath, CARD_TYPE.NORMAL);
                 cards.push(card);
             }
+        }
+
+        return cards;
+    }
+
+    /**
+     * 정답 짝 카드 생성 (내부 메서드)
+     *
+     * @private
+     * @param {number} answerPairs - 정답 짝 세트 개수 (보통 1개)
+     * @param {number} answerPairCount - 정답 짝 카드 매칭 개수 (2장 또는 3장)
+     * @param {string} theme - 카드 테마
+     * @returns {Card[]} 정답 짝 카드 배열
+     */
+    _generateAnswerPairCards(answerPairs, answerPairCount, theme) {
+        const cards = [];
+        const imagePaths = this._getImagePaths(theme, answerPairs);
+
+        // 정답 짝 카드는 고유 ID 사용 (2000번대)
+        const baseId = 2000;
+
+        for (let i = 0; i < answerPairs; i++) {
+            const imagePath = imagePaths[i] || `assets/images/cards/answer_${i}.png`;
+
+            // 정답 짝 카드는 모두 같은 ID를 가짐 (매칭용)
+            // answerPairCount 개수만큼 생성 (2장 또는 3장)
+            for (let j = 0; j < answerPairCount; j++) {
+                const card = new Card(baseId + i, 0, 0, imagePath, CARD_TYPE.ANSWER_PAIR);
+                cards.push(card);
+            }
+        }
+
+        return cards;
+    }
+
+    /**
+     * 폭탄 카드 생성 (내부 메서드)
+     *
+     * @private
+     * @param {number} bombCount - 폭탄 카드 개수
+     * @returns {Card[]} 폭탄 카드 배열
+     */
+    _generateBombCards(bombCount) {
+        const cards = [];
+
+        // 폭탄 카드는 고유 ID 사용 (3000번대)
+        const baseId = 3000;
+        const bombImagePath = 'assets/images/cards/bomb.png'; // 폭탄 이미지 경로
+
+        for (let i = 0; i < bombCount; i++) {
+            // 각 폭탄 카드는 고유 ID를 가짐 (개별 처리용)
+            const card = new Card(baseId + i, 0, 0, bombImagePath, CARD_TYPE.BOMB);
+            cards.push(card);
         }
 
         return cards;

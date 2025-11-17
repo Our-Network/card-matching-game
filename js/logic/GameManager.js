@@ -26,6 +26,7 @@ class GameManager {
         this.onGameOver = null;
         this.onScoreChange = null;
         this.onTimeUpdate = null;
+        this.onBombExplode = null; // 폭탄 폭발 콜백
 
         // 타이머 관련
         this.timerInterval = null;
@@ -108,6 +109,11 @@ class GameManager {
             return false;
         }
 
+        // 폭탄 카드 처리
+        if (card.isBomb) {
+            return this._handleBombCard(card);
+        }
+
         // 카드 뒤집기
         try {
             card.flip();
@@ -127,7 +133,33 @@ class GameManager {
         if (!this.state.secondCard && card !== this.state.firstCard) {
             this.state.selectSecondCard(card);
 
+            // 3장 매칭이 필요한 경우 체크 (지옥 난이도에서 정답 짝 카드)
+            const needsThreeMatch = this.state.difficulty && 
+                                   this.state.difficulty.answerPairCount === 3 &&
+                                   this.state.firstCard.isAnswerPair &&
+                                   card.isAnswerPair;
+            
+            if (needsThreeMatch && !this.state.thirdCard) {
+                // 3장 매칭을 위해 계속 선택 가능 (매칭 체크 안 함)
+                return true;
+            }
+
+            // 일반 카드 2장 매칭 또는 정답 짝 카드 2장 매칭 체크
             // 매칭 체크 (지연)
+            setTimeout(() => {
+                this._checkMatch();
+            }, CARD_CONFIG.matchDelay || 500);
+
+            return true;
+        }
+
+        // 세 번째 카드 선택 (3장 매칭용)
+        if (!this.state.thirdCard && 
+            card !== this.state.firstCard && 
+            card !== this.state.secondCard) {
+            this.state.selectThirdCard(card);
+
+            // 3장 매칭 체크 (지연)
             setTimeout(() => {
                 this._checkMatch();
             }, CARD_CONFIG.matchDelay || 500);
@@ -146,14 +178,28 @@ class GameManager {
      * @private
      */
     _checkMatch() {
-        const { firstCard, secondCard } = this.state;
+        const { firstCard, secondCard, thirdCard } = this.state;
 
         if (!firstCard || !secondCard) {
             console.error('Cannot check match: missing cards');
             return;
         }
 
-        // 짝 비교
+        // 3장 매칭 체크 (지옥 난이도)
+        if (thirdCard) {
+            const isThreeMatch = firstCard.isMatchWith(secondCard) && 
+                                firstCard.isMatchWith(thirdCard) &&
+                                secondCard.isMatchWith(thirdCard);
+            
+            if (isThreeMatch) {
+                this._handleMatch(firstCard, secondCard, thirdCard);
+            } else {
+                this._handleMismatch(firstCard, secondCard, thirdCard);
+            }
+            return;
+        }
+
+        // 2장 매칭 체크
         const isMatch = firstCard.isMatchWith(secondCard);
 
         if (isMatch) {
@@ -169,18 +215,26 @@ class GameManager {
      * @private
      * @param {Card} card1
      * @param {Card} card2
+     * @param {Card} [card3] - 3장 매칭용 (선택)
      */
-    _handleMatch(card1, card2) {
+    _handleMatch(card1, card2, card3 = null) {
         // 카드 상태 업데이트
         card1.setMatched();
         card2.setMatched();
+        if (card3) {
+            card3.setMatched();
+        }
 
         // 점수 계산
         const basePoints = this.state.difficulty.pointsPerMatch;
         const comboBonus = this.state.combo > 0 ? this.state.combo * 5 : 0;
+        
+        // 정답 짝 카드 보너스
+        const answerBonus = (card1.isAnswerPair || card2.isAnswerPair || (card3 && card3.isAnswerPair)) 
+                           ? basePoints * 2 : 0;
 
         // 상태 업데이트
-        this.state.recordMatch(basePoints);
+        this.state.recordMatch(basePoints + answerBonus);
         if (comboBonus > 0) {
             this.state.addComboBonus(comboBonus);
         }
@@ -189,7 +243,12 @@ class GameManager {
         this.state.clearSelection();
 
         // 콜백 호출
-        this._notifyMatch(card1, card2, basePoints + comboBonus);
+        const totalPoints = basePoints + answerBonus + comboBonus;
+        if (card3) {
+            this._notifyMatch(card1, card2, totalPoints, card3);
+        } else {
+            this._notifyMatch(card1, card2, totalPoints);
+        }
         this._notifyScoreChange();
 
         // 게임 클리어 체크
@@ -204,24 +263,152 @@ class GameManager {
      * @private
      * @param {Card} card1
      * @param {Card} card2
+     * @param {Card} [card3] - 3장 매칭용 (선택)
      */
-    _handleMismatch(card1, card2) {
+    _handleMismatch(card1, card2, card3 = null) {
         // 시간 페널티
         const timePenalty = this.state.difficulty.timePenalty || 0;
         this.state.recordMismatch(timePenalty);
 
         // 콜백 호출
-        this._notifyMismatch(card1, card2, timePenalty);
+        if (card3) {
+            this._notifyMismatch(card1, card2, timePenalty, card3);
+        } else {
+            this._notifyMismatch(card1, card2, timePenalty);
+        }
         this._notifyTimeUpdate();
 
         // 카드 뒤집기 (지연)
         setTimeout(() => {
-            if (!card1.isMatched) card1.flip();
-            if (!card2.isMatched) card2.flip();
+            // 애니메이션 상태 해제 후 뒤집기
+            if (!card1.isMatched) {
+                card1.setAnimating(false);
+                try {
+                    card1.flip();
+                } catch (error) {
+                    console.warn('Failed to flip card1:', error);
+                }
+            }
+            if (!card2.isMatched) {
+                card2.setAnimating(false);
+                try {
+                    card2.flip();
+                } catch (error) {
+                    console.warn('Failed to flip card2:', error);
+                }
+            }
+            if (card3 && !card3.isMatched) {
+                card3.setAnimating(false);
+                try {
+                    card3.flip();
+                } catch (error) {
+                    console.warn('Failed to flip card3:', error);
+                }
+            }
 
             // 선택 초기화
             this.state.clearSelection();
         }, CARD_CONFIG.mismatchDelay || 1000);
+    }
+
+    /**
+     * 폭탄 카드 처리
+     *
+     * @private
+     * @param {Card} bombCard - 폭탄 카드
+     * @returns {boolean}
+     */
+    _handleBombCard(bombCard) {
+        if (!bombCard.isBomb) {
+            return false;
+        }
+
+        const difficulty = this.state.difficulty;
+        
+        // 선택된 카드가 있으면 초기화
+        if (this.state.firstCard || this.state.secondCard || this.state.thirdCard) {
+            // 선택된 카드들을 뒤집기
+            if (this.state.firstCard && !this.state.firstCard.isMatched) {
+                this.state.firstCard.flip();
+            }
+            if (this.state.secondCard && !this.state.secondCard.isMatched) {
+                this.state.secondCard.flip();
+            }
+            if (this.state.thirdCard && !this.state.thirdCard.isMatched) {
+                this.state.thirdCard.flip();
+            }
+            this.state.clearSelection();
+        }
+        
+        // 폭탄 카드 뒤집기
+        try {
+            bombCard.flip();
+            this._notifyCardFlip(bombCard);
+        } catch (error) {
+            console.error('Failed to flip bomb card:', error);
+            return false;
+        }
+
+        // 즉사 확률 체크 (지옥 난이도)
+        if (difficulty.bombInstantDeathChance && 
+            Math.random() < difficulty.bombInstantDeathChance) {
+            // 즉사 처리
+            setTimeout(() => {
+                this._gameOver();
+                if (this.onBombExplode) {
+                    this.onBombExplode(bombCard, 'instant_death');
+                }
+            }, 500);
+            return true;
+        }
+
+        // 카드 섞임 확률 체크 (지옥 난이도)
+        if (difficulty.bombShuffleChance && 
+            Math.random() < difficulty.bombShuffleChance) {
+            // 남은 카드 섞기
+            this._shuffleRemainingCards();
+            if (this.onBombExplode) {
+                this.onBombExplode(bombCard, 'shuffle');
+            }
+        }
+
+        // 시간 감소
+        const timePenalty = difficulty.bombTimePenalty || difficulty.timePenalty || 10;
+        this.state.updateTime(Math.max(0, this.state.timeRemaining - timePenalty));
+        this._notifyTimeUpdate();
+
+        // 폭탄 카드 뒤집기 (지연)
+        setTimeout(() => {
+            if (!bombCard.isMatched) {
+                bombCard.flip();
+            }
+        }, CARD_CONFIG.mismatchDelay || 1000);
+
+        return true;
+    }
+
+    /**
+     * 남은 카드 섞기 (폭탄 효과)
+     *
+     * @private
+     */
+    _shuffleRemainingCards() {
+        const cards = this.state.cards.filter(card => !card.isMatched && !card.isFlipped);
+        
+        if (cards.length === 0) {
+            return;
+        }
+
+        // 위치만 섞기 (ID는 유지)
+        const positions = cards.map(card => ({ x: card.x, y: card.y }));
+        ArrayUtils.shuffle(positions);
+
+        cards.forEach((card, index) => {
+            const { x, y } = positions[index];
+            card.setPosition(x, y);
+        });
+
+        console.log(`Shuffled ${cards.length} remaining cards`);
     }
 
     // ========== 타이머 관리 ==========
@@ -296,15 +483,23 @@ class GameManager {
         }
     }
 
-    _notifyMatch(card1, card2, points) {
+    _notifyMatch(card1, card2, points, card3 = null) {
         if (this.onMatch) {
-            this.onMatch(card1, card2, points);
+            if (card3) {
+                this.onMatch(card1, card2, points, card3);
+            } else {
+                this.onMatch(card1, card2, points);
+            }
         }
     }
 
-    _notifyMismatch(card1, card2, penalty) {
+    _notifyMismatch(card1, card2, penalty, card3 = null) {
         if (this.onMismatch) {
-            this.onMismatch(card1, card2, penalty);
+            if (card3) {
+                this.onMismatch(card1, card2, penalty, card3);
+            } else {
+                this.onMismatch(card1, card2, penalty);
+            }
         }
     }
 
