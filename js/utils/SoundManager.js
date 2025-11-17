@@ -20,12 +20,12 @@ class SoundManager {
         // 로드된 사운드 버퍼
         this.sounds = {};
 
-        // 사운드 경로 매핑
+        // 사운드 경로 매핑 (현재 미사용 - 향후 확장용)
         this.soundPaths = {
-            click: SOUNDS.click || null,
-            match: SOUNDS.match || null,
-            mismatch: SOUNDS.mismatch || null,
-            complete: SOUNDS.complete || null
+            click: null,
+            match: null,
+            mismatch: null,
+            complete: null
         };
 
         // AudioContext 초기화

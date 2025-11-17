@@ -42,7 +42,8 @@ class GameManager extends EventEmitter {
         }
 
         // 디버그 모드 (개발 환경에서만)
-        this._debug = typeof config !== 'undefined' && config.get('debug.enabled', false);
+        this._debug = window.location.hostname === 'localhost' ||
+                     window.location.protocol === 'file:';
 
         if (this._debug) {
             logger.info('[GameManager] Initialized with options:', options);

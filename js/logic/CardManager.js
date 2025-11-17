@@ -82,18 +82,11 @@ class CardManager {
      * @returns {string[]} 이미지 경로 배열
      */
     _getImagePaths(theme, count) {
-        const themes = CARD_THEMES || {};
-        const paths = themes[theme] || [];
-
-        // 이미지가 부족하면 플레이스홀더 사용
-        if (paths.length < count) {
-            console.warn(`Theme '${theme}' has insufficient images. Using placeholders.`);
-            return ArrayUtils.range(0, count).map(i =>
-                paths[i] || `assets/images/cards/placeholder_${i}.png`
-            );
-        }
-
-        return paths.slice(0, count);
+        // CARD_THEMES는 현재 구현되지 않음 - 향후 확장용
+        // 현재는 플레이스홀더 사용
+        return ArrayUtils.range(0, count).map(i =>
+            `assets/images/cards/placeholder_${i}.png`
+        );
     }
 
     /**

@@ -1,7 +1,8 @@
 /**
- * @fileoverview UI 화면 렌더링 클래스 - 귀여운 파스텔 스타일
+ * @fileoverview UI 화면 렌더링 오케스트레이터 - 귀여운 파스텔 스타일
  * @module rendering/UIRenderer
  * @description 레퍼런스 이미지 기반 Soft Toy/Plushie aesthetic 구현
+ *              Screen 객체들을 관리하고 공통 유틸리티 제공
  */
 
 class UIRenderer {
@@ -70,433 +71,47 @@ class UIRenderer {
         // 애니메이션
         this.waveOffset = 0;
         this.cloudOffset = 0;
+
+        // Screen 객체 초기화 (자기 자신을 전달)
+        this.startScreen = new StartScreen(this);
+        this.gameScreen = new GameScreen(this);
+        this.resultScreen = new ResultScreen(this);
     }
 
     // ========================================
-    // 시작 화면
+    // 화면 렌더링 위임
     // ========================================
 
     drawStartScreen() {
-        // 배경 그라데이션
-        this._drawGradientBackground();
-
-        // 장식 요소
-        this._drawWaves(height - 150);
-        this._drawClouds();
-
-        // 캐릭터 (곰)
-        this._drawBearCharacter(width / 2, height / 2 + 100, 1.5);
-
-        // 말풍선
-        this._drawSpeechBubble(
-            width / 2 + 180,
-            height / 2 - 20,
-            '카드를 두 장씩 뒤집어\n짝을 맞춰요!',
-            200
-        );
-
-        // 타이틀
-        push();
-        textAlign(CENTER, CENTER);
-        textSize(this.fonts.title);
-        textStyle(BOLD);
-
-        // 타이틀 그림자
-        fill(0, 0, 0, 30);
-        text('카드 쿵쿵\n매칭 짝짝!', width / 2 + 4, height / 2 - 154);
-
-        // 타이틀 (하얀 테두리)
-        fill(this.colors.text.white);
-        stroke(this.colors.text.primary);
-        strokeWeight(8);
-        text('카드 쿵쿵\n매칭 짝짝!', width / 2, height / 2 - 150);
-        pop();
-
-        // 시작 버튼 (큰 둥근 버튼)
-        const startBtn = this._drawPillButton(
-            width / 2,
-            height - 120,
-            200,
-            70,
-            '시작',
-            this.colors.button.easy,
-            'start'
-        );
+        return this.startScreen.drawStartScreen();
     }
 
     handleStartClick(mx, my) {
-        // 시작 버튼 영역 체크
-        const btnY = height - 120;
-        const btnWidth = 200;
-        const btnHeight = 70;
-
-        if (mx > width / 2 - btnWidth / 2 &&
-            mx < width / 2 + btnWidth / 2 &&
-            my > btnY - btnHeight / 2 &&
-            my < btnY + btnHeight / 2) {
-            return 'start';
-        }
-        return null;
+        return this.startScreen.handleStartClick(mx, my);
     }
 
-    // ========================================
-    // 난이도 선택 화면
-    // ========================================
-
     drawDifficultyScreen() {
-        // 배경
-        this._drawGradientBackground();
-        this._drawWaves(height - 150);
-        this._drawClouds();
-
-        // 캐릭터 (작게)
-        this._drawBearCharacter(150, height - 100, 0.8);
-
-        // 말풍선
-        this._drawSpeechBubble(
-            280,
-            height - 180,
-            '카드를 두 장씩 뒤집어\n짝을 맞춰요!',
-            180
-        );
-
-        // 타이틀
-        push();
-        textAlign(CENTER, CENTER);
-        textSize(this.fonts.title);
-        textStyle(BOLD);
-
-        fill(this.colors.text.white);
-        stroke(this.colors.text.primary);
-        strokeWeight(8);
-        text('난이도 선택', width / 2, 100);
-        pop();
-
-        // 난이도 버튼들 (세로 배치)
-        const buttons = [
-            { key: 'EASY', label: '쉬움', color: this.colors.button.easy, y: 220 },
-            { key: 'MEDIUM', label: '보통', color: this.colors.button.normal, y: 320 },
-            { key: 'HARD', label: '어려움', color: this.colors.button.hard, y: 420 },
-            { key: 'HELL', label: '지옥', color: this.colors.button.hell, y: 520 }
-        ];
-
-        buttons.forEach(btn => {
-            this._drawPillButton(
-                width / 2,
-                btn.y,
-                300,
-                70,
-                btn.label,
-                btn.color,
-                btn.key
-            );
-        });
+        return this.startScreen.drawDifficultyScreen();
     }
 
     handleDifficultyClick(mx, my) {
-        const buttons = [
-            { key: 'EASY', y: 220 },
-            { key: 'MEDIUM', y: 320 },
-            { key: 'HARD', y: 420 },
-            { key: 'HELL', y: 520 }
-        ];
-
-        for (let btn of buttons) {
-            if (mx > width / 2 - 150 &&
-                mx < width / 2 + 150 &&
-                my > btn.y - 35 &&
-                my < btn.y + 35) {
-                return btn.key;
-            }
-        }
-        return null;
+        return this.startScreen.handleDifficultyClick(mx, my);
     }
-
-    // ========================================
-    // 게임 플레이 화면
-    // ========================================
 
     drawGameUI(gameState) {
-        // 배경
-        background(this.colors.bg.light);
-
-        // 상단 UI 바
-        this._drawTopBar(gameState);
-
-        // 헬퍼 메시지
-        if (this.helperMessage && millis() < this.helperMessageEndTime) {
-            this._drawHelperMessage();
-        }
-
-        // 피드백 메시지
-        if (this.currentMessage && millis() < this.messageEndTime) {
-            this._drawFeedbackMessage();
-        }
+        return this.gameScreen.drawGameUI(gameState);
     }
-
-    _drawTopBar(gameState) {
-        // 상단 바 배경
-        fill(255, 255, 255, 240);
-        noStroke();
-        rect(0, 0, width, 80);
-
-        // 그림자
-        fill(0, 0, 0, 10);
-        rect(0, 78, width, 4);
-
-        // 왼쪽: 점수
-        this._drawScoreDisplay(60, 40, gameState.score);
-
-        // 중앙: 시간
-        this._drawTimeDisplay(width / 2, 40, gameState.timeRemaining);
-
-        // 오른쪽: 하트 (남은 시도)
-        this._drawHeartDisplay(width - 120, 40, gameState.hearts, gameState.maxHearts);
-    }
-
-    _drawScoreDisplay(x, y, score) {
-        push();
-        textAlign(LEFT, CENTER);
-
-        // 아이콘 (별)
-        fill('#FFD700');
-        noStroke();
-        textSize(28);
-        text('⭐', x - 10, y - 2);
-
-        // 점수
-        fill(this.colors.text.primary);
-        textSize(this.fonts.ui);
-        textStyle(BOLD);
-        text(`×${score}`, x + 25, y);
-        pop();
-    }
-
-    _drawTimeDisplay(x, y, timeRemaining) {
-        push();
-        textAlign(CENTER, CENTER);
-
-        // 시간 배경 (둥근 박스)
-        const boxWidth = 140;
-        const boxHeight = 50;
-
-        fill(255, 255, 255);
-        stroke(this.colors.text.primary);
-        strokeWeight(3);
-        rect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight, 25);
-
-        // 시간 텍스트
-        noStroke();
-        fill(this.colors.text.primary);
-        textSize(this.fonts.ui);
-        textStyle(BOLD);
-
-        const minutes = floor(timeRemaining / 60);
-        const seconds = timeRemaining % 60;
-        const timeStr = `${minutes}:${nf(seconds, 2)}`;
-        text(timeStr, x, y);
-        pop();
-    }
-
-    _drawHeartDisplay(x, y, hearts, maxHearts) {
-        push();
-        textAlign(CENTER, CENTER);
-
-        // 하트 아이콘 (하트가 적으면 회색으로)
-        const heartColor = hearts > maxHearts * 0.3 ? this.colors.heart : '#999999';
-        fill(heartColor);
-        noStroke();
-        textSize(28);
-        text('❤️', x - 30, y - 2);
-
-        // 개수 (하트가 0이면 회색으로)
-        const textColor = hearts > 0 ? this.colors.text.primary : '#999999';
-        fill(textColor);
-        textSize(this.fonts.ui);
-        textStyle(BOLD);
-        text(`×${hearts}`, x + 15, y);
-        
-        // 하트가 적을 때 경고 효과 (펄스 애니메이션)
-        if (hearts <= maxHearts * 0.3 && hearts > 0) {
-            push();
-            const pulseAlpha = map(sin(millis() * 0.01), -1, 1, 50, 150);
-            fill(255, 0, 0, pulseAlpha);
-            noStroke();
-            ellipse(x, y, 80, 40);
-            pop();
-        }
-        pop();
-    }
-
-    // ========================================
-    // 결과 화면
-    // ========================================
 
     drawResultScreen(stats) {
-        // 배경
-        this._drawGradientBackground();
-        this._drawWaves(height - 150);
-
-        // 승리 여부 및 원인 판단
-        const isWin = stats.isWin;
-        const reason = stats.gameOverReason;
-
-        // 캐릭터 (크게) - 표정은 승리 여부에 따라
-        this._drawBearCharacter(width / 2, height / 2 + 50, 1.3, isWin);
-
-        // 아이콘 표시 (승리/실패에 따라)
-        let icon = '🎉';
-        if (!isWin) {
-            if (reason === 'hearts') {
-                icon = '💔';
-            } else if (reason === 'time') {
-                icon = '⏰';
-            }
-        }
-
-        // 아이콘 그리기
-        push();
-        textAlign(CENTER, CENTER);
-        textSize(60);
-        noStroke();
-        const iconBounce = sin(millis() * 0.005) * 5;
-        text(icon, width / 2, 150 + iconBounce);
-        pop();
-
-        // 결과 타이틀
-        push();
-        textAlign(CENTER, CENTER);
-        textSize(this.fonts.title);
-        textStyle(BOLD);
-
-        let titleText;
-        if (isWin) {
-            titleText = '성공!';
-        } else if (reason === 'hearts') {
-            titleText = '실패!';
-        } else {
-            titleText = '시간 초과!';
-        }
-
-        fill(this.colors.text.white);
-        stroke(this.colors.text.primary);
-        strokeWeight(8);
-        text(titleText, width / 2, 100);
-        pop();
-
-        // 통계 박스
-        this._drawStatsBox(width / 2, 250, stats);
-
-        // 버튼들
-        // 재시도 버튼 (같은 난이도)
-        this._drawPillButton(
-            width / 2 - 120,
-            height - 120,
-            200,
-            70,
-            '재시도',
-            this.colors.button.normal,
-            'retry'
-        );
-        
-        // 난이도 선택 버튼
-        this._drawPillButton(
-            width / 2 + 120,
-            height - 120,
-            200,
-            70,
-            '난이도 선택',
-            this.colors.button.hard,
-            'difficulty'
-        );
+        return this.resultScreen.drawResultScreen(stats);
     }
 
-    _drawStatsBox(x, y, stats) {
-        const isWin = stats.isWin;
-        const boxWidth = 400;
-        const boxHeight = isWin ? 320 : 300;
-
-        push();
-        // 박스 배경
-        fill(255, 255, 255, 250);
-        stroke(this.colors.text.primary);
-        strokeWeight(4);
-        rect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight, 30);
-
-        // 통계 텍스트
-        textAlign(CENTER, CENTER);
-        noStroke();
-        fill(this.colors.text.primary);
-
-        const statY = y - 90;
-        const lineHeight = 40;
-
-        // 난이도
-        textSize(this.fonts.ui - 2);
-        textStyle(NORMAL);
-        text(`난이도: ${stats.difficulty}`, x, statY + lineHeight * 0);
-
-        // 점수
-        textSize(this.fonts.ui);
-        textStyle(BOLD);
-        text(`점수: ${stats.score}점`, x, statY + lineHeight * 1);
-
-        // 하트 정보
-        textSize(this.fonts.ui - 2);
-        textStyle(NORMAL);
-        const heartText = isWin 
-            ? `남은 하트: ${stats.heartsRemaining}/${stats.maxHearts}`
-            : `하트: 0/${stats.maxHearts}`;
-        text(heartText, x, statY + lineHeight * 2);
-
-        // 시간
-        const minutes = floor(stats.elapsedTime / 60);
-        const seconds = stats.elapsedTime % 60;
-        text(`플레이 시간: ${minutes}분 ${seconds}초`, x, statY + lineHeight * 3);
-
-        // 맞춘 카드 쌍
-        text(`맞춘 짝: ${stats.matchedPairs}/${stats.totalPairs}`, x, statY + lineHeight * 4);
-
-        // 시도 횟수
-        text(`시도: ${stats.attempts}회`, x, statY + lineHeight * 5);
-
-        // 정확도
-        text(`정확도: ${stats.accuracy}%`, x, statY + lineHeight * 6);
-
-        // 최대 콤보 (승리 시에만)
-        if (isWin && stats.maxCombo > 0) {
-            text(`최대 콤보: ${stats.maxCombo}`, x, statY + lineHeight * 7);
-        }
-
-        pop();
-    }
-
-        handleResultClick(mx, my) {
-        const btnY = height - 120;
-        const btnWidth = 200;
-        const btnHeight = 70;
-
-        // 재시도 버튼 (왼쪽)
-        if (mx > width / 2 - 120 - btnWidth / 2 &&
-            mx < width / 2 - 120 + btnWidth / 2 &&
-            my > btnY - btnHeight / 2 &&
-            my < btnY + btnHeight / 2) {
-            return 'retry';
-        }
-        
-        // 난이도 선택 버튼 (오른쪽)
-        if (mx > width / 2 + 120 - btnWidth / 2 &&
-            mx < width / 2 + 120 + btnWidth / 2 &&
-            my > btnY - btnHeight / 2 &&
-            my < btnY + btnHeight / 2) {
-            return 'difficulty';
-        }
-        
-        return null;
+    handleResultClick(mx, my) {
+        return this.resultScreen.handleResultClick(mx, my);
     }
 
     // ========================================
-    // 공통 UI 컴포넌트
+    // 공통 UI 컴포넌트 (모든 Screen에서 사용)
     // ========================================
 
     /**
@@ -647,9 +262,9 @@ class UIRenderer {
         // 꼬리 (삼각형)
         noStroke();
         triangle(
-            x - tailSize, y + h * 0.6,
-            x, y + h * 0.4,
-            x, y + h * 0.8
+            x - tailSize, y + h / 2 + 10,
+            x, y + h / 2,
+            x + tailSize, y + h / 2 + 10
         );
 
         // 텍스트
@@ -663,69 +278,58 @@ class UIRenderer {
     }
 
     /**
-     * 물결 장식 그리기
+     * 물결 그리기
      */
     _drawWaves(yPos) {
-        this.waveOffset += 0.5;
+        this.waveOffset += 0.01;
 
         push();
         noStroke();
 
-        // 뒤쪽 물결 (연한 색)
+        // 뒷쪽 물결 (밝은색)
         fill(255, 255, 255, 100);
         beginShape();
-        vertex(0, height);
-        for (let x = 0; x <= width; x += 20) {
-            const y = yPos + sin((x + this.waveOffset) * 0.02) * 15;
+        for (let x = 0; x <= width; x += 10) {
+            const y = yPos + sin(x * 0.02 + this.waveOffset) * 15;
             vertex(x, y);
         }
         vertex(width, height);
+        vertex(0, height);
         endShape(CLOSE);
 
-        // 앞쪽 물결 (하얀색)
-        fill(255, 255, 255);
+        // 앞쪽 물결 (진한색)
+        fill(255, 255, 255, 180);
         beginShape();
-        vertex(0, height);
-        for (let x = 0; x <= width; x += 20) {
-            const y = yPos + 30 + sin((x + this.waveOffset + 50) * 0.025) * 20;
+        for (let x = 0; x <= width; x += 10) {
+            const y = yPos + 10 + sin(x * 0.03 + this.waveOffset + 1) * 10;
             vertex(x, y);
         }
         vertex(width, height);
+        vertex(0, height);
         endShape(CLOSE);
 
         pop();
     }
 
     /**
-     * 구름 장식 그리기
+     * 구름 그리기
      */
     _drawClouds() {
         this.cloudOffset += 0.2;
 
-        const clouds = [
-            { x: (this.cloudOffset % (width + 200)) - 100, y: 80, size: 1 },
-            { x: ((this.cloudOffset * 0.7) % (width + 250)) - 125, y: 150, size: 0.8 },
-            { x: ((this.cloudOffset * 1.3) % (width + 180)) - 90, y: 200, size: 0.6 }
-        ];
-
-        clouds.forEach(cloud => {
-            this._drawCloud(cloud.x, cloud.y, cloud.size);
-        });
+        this._drawCloud((this.cloudOffset % width) - 100, 80, 1);
+        this._drawCloud((this.cloudOffset * 0.7 % width) + 200, 150, 0.8);
+        this._drawCloud((this.cloudOffset * 0.5 % width) + 400, 120, 1.2);
     }
 
     _drawCloud(x, y, cloudSize) {
         push();
-        translate(x, y);
-        scale(cloudSize);
-
-        fill(255, 255, 255, 200);
+        fill(255, 255, 255, 150);
         noStroke();
 
-        ellipse(0, 0, 60, 40);
-        ellipse(-25, 5, 50, 35);
-        ellipse(25, 5, 50, 35);
-        ellipse(-15, -10, 40, 30);
-        ellipse(15, -10, 40, 30);
+        ellipse(x, y, 60 * cloudSize, 40 * cloudSize);
+        ellipse(x - 25 * cloudSize, y + 5, 50 * cloudSize, 35 * cloudSize);
+        ellipse(x + 25 * cloudSize, y + 5, 50 * cloudSize, 35 * cloudSize);
 
         pop();
     }
@@ -734,16 +338,17 @@ class UIRenderer {
      * 그라데이션 배경
      */
     _drawGradientBackground() {
-        // 단순한 그라데이션 대신 p5.js의 배경색 사용
-        background(this.colors.bg.main);
-
-        // 상단 밝은 영역
         push();
-        noStroke();
-        for (let y = 0; y < height / 2; y += 5) {
-            const alpha = map(y, 0, height / 2, 100, 0);
-            fill(229, 237, 247, alpha);
-            rect(0, y, width, 5);
+        // 간단한 수직 그라데이션 효과
+        for (let y = 0; y < height; y++) {
+            const inter = map(y, 0, height, 0, 1);
+            const c = lerpColor(
+                color(this.colors.bg.gradient1),
+                color(this.colors.bg.gradient2),
+                inter
+            );
+            stroke(c);
+            line(0, y, width, y);
         }
         pop();
     }
