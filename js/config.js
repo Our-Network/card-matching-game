@@ -8,7 +8,7 @@ const DIFFICULTY = {
     EASY: {
         name: '하',
         pairs: 4,           // 4쌍 = 8장
-        timeLimit: 180,     // 3분
+        timeLimit: 60,      // 1분
         gridCols: 4,
         gridRows: 2,
         pointsPerMatch: 10,
@@ -27,7 +27,7 @@ const DIFFICULTY = {
     MEDIUM: {
         name: '중',
         pairs: 8,           // 8쌍 = 16장
-        timeLimit: 120,     // 2분
+        timeLimit: 90,      // 1.5분
         gridCols: 4,
         gridRows: 4,
         pointsPerMatch: 15,
