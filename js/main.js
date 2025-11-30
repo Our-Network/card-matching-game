@@ -265,7 +265,7 @@ function setupGameCallbacks() {
     gameManager.on('match:success', (data) => {
         const { card1, card2, points } = data;
         console.log(`Match! Cards ${card1.id} and ${card2.id}, +${points} points`);
-        uiRenderer.showMessage('짝 성공! 🎉', 1000, 'success');
+        uiRenderer.showMessage('짝 성공!', 1000, 'success');
         cardRenderer.animateMatch(card1, card2);
         soundManager.play('match', 0.7);
 
@@ -279,7 +279,7 @@ function setupGameCallbacks() {
     gameManager.on('match:fail', (data) => {
         const { card1, card2, penalty } = data;
         console.log(`Mismatch! Cards ${card1.id} and ${card2.id}, -${penalty}s`);
-        uiRenderer.showMessage('다시 도전! 💪', 800, 'error');
+        uiRenderer.showMessage('다시 도전!', 800, 'error');
         cardRenderer.animateMismatch(card1, card2);
         soundManager.play('mismatch', 0.6);
     });
