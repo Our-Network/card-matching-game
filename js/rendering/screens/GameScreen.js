@@ -47,39 +47,11 @@ class GameScreen {
         fill(0, 0, 0, 10);
         rect(0, 78, width, 4);
 
-        // 왼쪽: 점수
-        this._drawScoreDisplay(60, 40, gameState.score);
-
         // 중앙: 시간
         this._drawTimeDisplay(width / 2, 40, gameState.timeRemaining);
 
         // 오른쪽: 하트 (남은 시도)
         this._drawHeartDisplay(width - 120, 40, gameState.hearts, gameState.maxHearts);
-    }
-
-    /**
-     * 점수 표시
-     * @private
-     * @param {number} x - x 좌표
-     * @param {number} y - y 좌표
-     * @param {number} score - 점수
-     */
-    _drawScoreDisplay(x, y, score) {
-        push();
-        textAlign(LEFT, CENTER);
-
-        // 아이콘 (별)
-        fill('#FFD700');
-        noStroke();
-        textSize(28);
-        text('⭐', x - 10, y - 2);
-
-        // 점수
-        fill(this.ui.colors.text.primary);
-        textSize(this.ui.fonts.ui);
-        textStyle(BOLD);
-        text(`×${score}`, x + 25, y);
-        pop();
     }
 
     /**

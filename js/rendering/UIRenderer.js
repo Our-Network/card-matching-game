@@ -19,9 +19,6 @@ class UIRenderer {
         this.helperMessage = null;
         this.helperMessageEndTime = 0;
 
-        // 하이스코어
-        this.highScoreManager = new HighScoreManager();
-
         // 디자인 시스템 - 레퍼런스 기반 파스텔 컬러
         this.colors = {
             // 배경색
