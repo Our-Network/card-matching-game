@@ -389,15 +389,19 @@ class UIRenderer {
         textSize(this.fonts.title);
         textStyle(BOLD);
 
-        // 배경
+        // 배경 (상단 바와 카드 영역 사이 중앙에 위치)
+        // 상단 바: ~80px, 카드 시작: ~280px → 중앙: 180px
         const boxWidth = 400;
-        const boxHeight = 100;
+        const boxHeight = 80;
+        const topBarEnd = 80;
+        const cardAreaStart = 260;
+        const messageY = topBarEnd + (cardAreaStart - topBarEnd - boxHeight) / 2;
         fill(255, 255, 255, alpha * 0.95);
         stroke(this.colors.text.primary);
         strokeWeight(4);
         rect(
             width / 2 - boxWidth / 2,
-            height / 2 - 200 - boxHeight / 2,
+            messageY,
             boxWidth,
             boxHeight,
             30
@@ -409,7 +413,7 @@ class UIRenderer {
             ? this.colors.button.easy
             : this.colors.button.hell;
         fill(red(color), green(color), blue(color), alpha);
-        text(this.currentMessage.text, width / 2, height / 2 - 200);
+        text(this.currentMessage.text, width / 2, messageY + boxHeight / 2);
 
         pop();
     }

@@ -108,24 +108,49 @@ const DIFFICULTY = {
     // }
 };
 
-// 캔버스 설정
+// 캔버스 설정 (카드 크기 변경으로 높이 증가)
 const CANVAS_CONFIG = {
     width: 1200,
-    height: 800,
+    height: 900,
     backgroundColor: '#FFFFFF'
 };
 
-// 카드 설정 (정사각형, 레퍼런스 스타일)
+// 카드 설정 (세로 직사각형, 에셋 비율 379:529 유지)
 const CARD_CONFIG = {
-    width: 110,             // 정사각형
-    height: 110,            // 정사각형
-    cornerRadius: 20,       // 둥근 모서리
-    margin: 18,             // 카드 간격 증가
+    width: 95,              // 원본 379 → 95 (약 1/4 축소)
+    height: 133,            // 원본 529 → 133 (비율 유지)
+    cornerRadius: 12,       // 둥근 모서리
+    margin: 12,             // 카드 간격
     backColor: '#FFB4D1',   // 파스텔 핑크
     flipDuration: 300,      // ms
     matchDelay: 500,        // 성공 시 대기
     mismatchDelay: 1000     // 실패 시 대기
 };
+
+// 카드 이미지 경로 (18종)
+const CARD_IMAGES = [
+    // 과일 (4종)
+    'assets/images/cards/과일/바나나.png',
+    'assets/images/cards/과일/사과.png',
+    'assets/images/cards/과일/수박.png',
+    'assets/images/cards/과일/포도.png',
+    // 동물 (8종)
+    'assets/images/cards/동물/강아지.png',
+    'assets/images/cards/동물/고양이.png',
+    'assets/images/cards/동물/곰.png',
+    'assets/images/cards/동물/기린.png',
+    'assets/images/cards/동물/돼지.png',
+    'assets/images/cards/동물/병아리.png',
+    'assets/images/cards/동물/코끼리.png',
+    'assets/images/cards/동물/펭귄.png',
+    // 악기 (6종)
+    'assets/images/cards/악기/기타.png',
+    'assets/images/cards/악기/드럼.png',
+    'assets/images/cards/악기/바이올린.png',
+    'assets/images/cards/악기/탬버린.png',
+    'assets/images/cards/악기/트럼펫.png',
+    'assets/images/cards/악기/피아노.png'
+];
 
 // 게임 상태
 const GAME_STATE = {
