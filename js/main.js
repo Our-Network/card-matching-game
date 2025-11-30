@@ -83,16 +83,46 @@ function draw() {
  * 게임 플레이 화면 그리기
  */
 function drawGamePlay() {
+    // 화면 흔들림 효과 적용
+    const shakeOffset = particleSystem.getShakeOffset();
+
+    push();
+    translate(shakeOffset.x, shakeOffset.y);
+
     // UI 먼저 그리기 (배경 포함)
     uiRenderer.drawGameUI(gameState);
 
-    // 카드 렌더링
-    cardRenderer.drawAllCards(gameState.cards, hoveredCard);
+    // 카드 렌더링 (확대 효과 적용)
+    const zoomingCard = particleSystem.getZoomingCard();
+    const zoomScale = particleSystem.getCardZoomScale();
+
+    gameState.cards.forEach(card => {
+        const isHovered = card === hoveredCard;
+
+        if (zoomingCard && card === zoomingCard) {
+            // 확대 효과 적용
+            push();
+            const centerX = card.x + CARD_CONFIG.width / 2;
+            const centerY = card.y + CARD_CONFIG.height / 2;
+            translate(centerX, centerY);
+            scale(zoomScale);
+            translate(-centerX, -centerY);
+            cardRenderer.drawCard(card, isHovered);
+            pop();
+        } else {
+            cardRenderer.drawCard(card, isHovered);
+        }
+    });
 
     // 파티클 렌더링 (카드 위에)
     if (particleSystem) {
         particleSystem.update();
     }
+
+    pop();
+
+    // 화면 플래시 효과 (흔들림 바깥에서)
+    particleSystem.updateScreenFlash();
 
     // 디버그 모드 (키보드 'D' 눌렀을 때)
     if (keyIsPressed && key === 'd') {
@@ -150,6 +180,44 @@ function keyPressed() {
     if (keyCode === ESCAPE) {
         if (confirm('게임을 초기화하시겠습니까?')) {
             gameManager.resetGame();
+        }
+    }
+
+    // ========== 히든 카드 효과 테스트 (게임 플레이 중에만) ==========
+    if (gameState.phase === GAME_STATE.PLAYING) {
+        // 1: 황금색 플래시
+        if (key === '1') {
+            console.log('테스트: 황금색 플래시');
+            particleSystem.triggerGoldenFlash(500);
+        }
+
+        // 2: 폭죽 파티클
+        if (key === '2') {
+            console.log('테스트: 폭죽 파티클');
+            particleSystem.triggerHiddenExplosion(width / 2, height / 2);
+        }
+
+        // 3: 화면 흔들림
+        if (key === '3') {
+            console.log('테스트: 화면 흔들림');
+            particleSystem.triggerScreenShake(15, 400);
+        }
+
+        // 4: 카드 확대 (첫 번째 카드)
+        if (key === '4') {
+            console.log('테스트: 카드 확대');
+            const firstCard = gameState.cards[0];
+            if (firstCard) {
+                particleSystem.triggerCardZoom(firstCard, 800);
+            }
+        }
+
+        // 5: 모든 효과 동시에
+        if (key === '5') {
+            console.log('테스트: 모든 효과 동시');
+            particleSystem.triggerGoldenFlash(500);
+            particleSystem.triggerHiddenExplosion(width / 2, height / 2);
+            particleSystem.triggerScreenShake(12, 400);
         }
     }
 }
@@ -270,6 +338,13 @@ function setupGameCallbacks() {
     gameManager.on('match:success', (data) => {
         const { card1, card2, points } = data;
         console.log(`Match! Cards ${card1.id} and ${card2.id}, +${points} points`);
+
+        // 히든 카드는 별도 처리 (hidden:match 이벤트에서 처리)
+        if (card1.isHiddenCard) {
+            cardRenderer.animateMatch(card1, card2);
+            return;
+        }
+
         uiRenderer.showMessage('짝 성공!', 1000, 'success');
         cardRenderer.animateMatch(card1, card2);
         soundManager.play('match', 0.7);
@@ -381,11 +456,18 @@ function setupGameCallbacks() {
         // 특별 효과음 재생
         soundManager.play('hidden_match', 0.8);
 
+        // 특별 시각 효과 (플래시 + 폭죽 + 흔들림)
+        const centerX = (card1.x + card2.x) / 2 + CARD_CONFIG.width / 2;
+        const centerY = (card1.y + card2.y) / 2 + CARD_CONFIG.height / 2;
+        particleSystem.triggerGoldenFlash(500);
+        particleSystem.triggerHiddenExplosion(centerX, centerY);
+        particleSystem.triggerScreenShake(12, 400);
+
         // 전체 카드 1초간 공개
         revealAllCards(HIDDEN_CARD.revealDuration);
 
         // 특별 메시지 표시
-        uiRenderer.showMessage('✨ 히든 카드 발견! ✨', 1500, 'success');
+        uiRenderer.showMessage('✨히든 카드 발견✨', 1500, 'success');
     });
 
     // 에러 처리
