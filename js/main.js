@@ -258,7 +258,12 @@ function setupGameCallbacks() {
     // 카드 뒤집기
     gameManager.on('card:flip', (card) => {
         console.log('Card flipped:', card.id);
-        soundManager.play('click', 0.5);
+        // 히든 카드인 경우 특별 효과음
+        if (card.isHiddenCard) {
+            soundManager.play('hidden_click', 0.7);
+        } else {
+            soundManager.play('click', 0.5);
+        }
     });
 
     // 매칭 성공
@@ -368,12 +373,54 @@ function setupGameCallbacks() {
         console.log('Game reset');
     });
 
+    // 히든 카드 매칭 - 전체 카드 공개 이벤트
+    gameManager.on('hidden:match', (data) => {
+        const { card1, card2, points } = data;
+        console.log('🎉 Hidden card matched!', card1.id, card2.id);
+
+        // 특별 효과음 재생
+        soundManager.play('hidden_match', 0.8);
+
+        // 전체 카드 1초간 공개
+        revealAllCards(HIDDEN_CARD.revealDuration);
+
+        // 특별 메시지 표시
+        uiRenderer.showMessage('✨ 히든 카드 발견! ✨', 1500, 'success');
+    });
+
     // 에러 처리
     gameManager.on('error', (data) => {
         const { method, error } = data;
         console.error(`[GameManager Error] ${method}:`, error);
         uiRenderer.showMessage('오류가 발생했습니다. 게임을 다시 시작해주세요.', 3000, 'error');
     });
+}
+
+// ========== 히든 카드 특수 기능 ==========
+
+/**
+ * 모든 카드를 일시적으로 공개
+ * @param {number} duration - 공개 시간 (ms)
+ */
+function revealAllCards(duration = 1000) {
+    const cards = gameState.cards;
+    const unflippedCards = cards.filter(card => !card.isFlipped && !card.isMatched);
+
+    // 모든 카드 앞면으로 뒤집기
+    unflippedCards.forEach(card => {
+        card.setFlipped(true);
+        cardRenderer.animateFlip(card, 200, true);
+    });
+
+    // duration 후 다시 뒤집기
+    setTimeout(() => {
+        unflippedCards.forEach(card => {
+            if (!card.isMatched) {
+                card.setFlipped(false);
+                cardRenderer.animateFlip(card, 200, false);
+            }
+        });
+    }, duration);
 }
 
 // ========== 디버그 함수 (브라우저 콘솔에서 사용) ==========
