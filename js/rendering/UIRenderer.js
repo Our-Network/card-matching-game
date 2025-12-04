@@ -18,6 +18,7 @@ class UIRenderer {
         this.messageQueue = [];
         this.helperMessage = null;
         this.helperMessageEndTime = 0;
+        this.previewStartTime = null;  // 미리보기 시작 시간
 
         // 하이스코어
         this.highScoreManager = new HighScoreManager();
