@@ -17,7 +17,6 @@ let soundManager;     // SoundManager: 효과음 관리
 
 let hoveredCard = null;       // 현재 호버 중인 카드
 let isConfettiActive = false; // 색종이 효과 활성화 여부
-let logoImage;                // 로고 이미지
 
 // ========== p5.js 라이프사이클 ==========
 
@@ -31,9 +30,6 @@ function setup() {
 
     // 텍스트 설정 (Cute Font: 귀여운 한글 폰트)
     textFont('Cute Font, -apple-system, sans-serif');
-
-    // 로고 이미지 로드
-    logoImage = loadImage('assets/images/logo.png');
 
     // 인스턴스 생성
     initializeInstances();
@@ -358,22 +354,11 @@ function setupGameCallbacks() {
     // 게임 초기화
     gameManager.on('game:init', (data) => {
         console.log('Game initialized:', data);
-        
-        // 지옥 난이도일 때 캔버스 크기 조정
-        if (data.difficulty && data.difficulty.name === '지옥' && CANVAS_CONFIG.hell) {
-            resizeCanvas(CANVAS_CONFIG.hell.width, CANVAS_CONFIG.hell.height);
-            console.log(`[Canvas] Resized to ${CANVAS_CONFIG.hell.width}x${CANVAS_CONFIG.hell.height} for HELL difficulty`);
-        } else if (data.difficulty && data.difficulty.name !== '지옥') {
-            // 다른 난이도로 돌아올 때 기본 크기로 복원
-            resizeCanvas(CANVAS_CONFIG.width, CANVAS_CONFIG.height);
-        }
     });
 
     // 미리 보기 시작
     gameManager.on('game:preview:start', (data) => {
         console.log('Preview started:', data);
-        // 미리보기 시작 시간 저장
-        uiRenderer.previewStartTime = Date.now();
     });
 
     // 미리 보기 종료

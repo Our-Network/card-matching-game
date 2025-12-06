@@ -24,7 +24,6 @@ class GameState {
         this._cards = config.cards || [];
         this._firstCard = null;
         this._secondCard = null;
-        this._thirdCard = null;  // 3장 매칭용
         this._canFlip = true;
         this._matchedPairs = 0;
 
@@ -74,11 +73,9 @@ class GameState {
     /** @returns {Object|null} */
     get difficulty() { return this._difficulty; }
 
-    /** @returns {number} 전체 카드 쌍 개수 (또는 세트 개수) */
+    /** @returns {number} 전체 카드 쌍 개수 */
     get totalPairs() {
-        if (!this._difficulty) return 0;
-        // 3장 매칭인 경우 sets 사용, 그 외에는 pairs 사용
-        return this._difficulty.sets || this._difficulty.pairs || 0;
+        return this._difficulty ? this._difficulty.pairs : 0;
     }
 
     // ========== Hearts ==========
@@ -104,9 +101,6 @@ class GameState {
 
     /** @returns {Card|null} */
     get secondCard() { return this._secondCard; }
-
-    /** @returns {Card|null} */
-    get thirdCard() { return this._thirdCard; }
 
     /** @returns {boolean} */
     get canFlip() { return this._canFlip; }
@@ -257,18 +251,6 @@ class GameState {
      */
     selectSecondCard(card) {
         this._secondCard = card;
-        // 3장 매칭이 아닌 경우에만 canFlip을 false로 설정
-        if (!this._difficulty || !this._difficulty.matchingRule || this._difficulty.matchingRule === 2) {
-            this._canFlip = false;
-        }
-    }
-
-    /**
-     * 세 번째 카드 선택 (3장 매칭용)
-     * @param {Card} card
-     */
-    selectThirdCard(card) {
-        this._thirdCard = card;
         this._canFlip = false;
     }
 
@@ -278,7 +260,6 @@ class GameState {
     clearSelection() {
         this._firstCard = null;
         this._secondCard = null;
-        this._thirdCard = null;
         this._canFlip = true;
     }
 

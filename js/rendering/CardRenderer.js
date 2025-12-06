@@ -18,28 +18,6 @@ class CardRenderer {
             matched: 'rgba(100, 200, 100, 0.3)'
         };
 
-        // 카드 아이콘 이모지 (레퍼런스 스타일)
-        this.cardIcons = [
-            '🍎',  // 사과
-            '🍄',  // 버섯
-            '🚀',  // 로켓
-            '💎',  // 다이아
-            '🔑',  // 열쇠
-            '✉️',  // 편지
-            '🍀',  // 클로버
-            '🎲',  // 주사위
-            '👁️',  // 눈
-            '⭐',  // 별
-            '🌙',  // 달
-            '☀️',  // 해
-            '🌸',  // 꽃
-            '🍊',  // 오렌지
-            '🍇',  // 포도
-        ];
-
-        // 폭탄 카드 아이콘
-        this.bombIcons = ['💣', '💥', '🔥', '⚡'];
-
         // 스타일
         this.style = {
             borderRadius: 12,        // 둥근 모서리
@@ -178,24 +156,8 @@ class CardRenderer {
         // 그림자
         this._drawCardShadow();
 
-        // 폭탄 카드
-        if (card.isBombCard) {
-            fill('#FF4444');
-            stroke('#FF0000');
-            strokeWeight(this.style.borderWidth + 2);
-            rect(0, 0, this.config.width, this.config.height, this.style.borderRadius);
-            
-            const bombIcon = this.bombIcons[Math.abs(card.id) % this.bombIcons.length];
-            fill(255);
-            noStroke();
-            textAlign(CENTER, CENTER);
-            textSize(this.config.width * this.style.iconScale);
-            text(bombIcon, 0, 0);
-            return;
-        }
-
-        // 일반 카드 배경색 (ID에 따라 다른 색상)
-        const bgColor = this.colors.cardBacks[card.id % this.colors.cardBacks.length];
+        // 카드 이미지 가져오기
+        const cardImage = this.cardImages.get(card.id % this.cardImages.size);
 
         if (cardImage) {
             // 이미지를 카드 크기에 맞게 그리기
@@ -282,7 +244,7 @@ class CardRenderer {
         // 그림자 (호버 시 더 크게)
         this._drawCardShadow(hoverProgress);
 
-        // 카드 배경 (핑크) - 폭탄 카드도 동일하게 표시
+        // 카드 배경 (핑크)
         fill(this.colors.back);
         stroke(this.colors.border);
         strokeWeight(this.style.borderWidth);
