@@ -46,6 +46,9 @@ class CardRenderer {
             '🍇',  // 포도
         ];
 
+        // 폭탄 카드 아이콘
+        this.bombIcons = ['💣', '💥', '🔥', '⚡'];
+
         // 스타일
         this.style = {
             borderRadius: 20,        // 둥근 모서리
@@ -126,7 +129,23 @@ class CardRenderer {
         // 그림자
         this._drawCardShadow();
 
-        // 카드 배경색 (ID에 따라 다른 색상)
+        // 폭탄 카드
+        if (card.isBombCard) {
+            fill('#FF4444');
+            stroke('#FF0000');
+            strokeWeight(this.style.borderWidth + 2);
+            rect(0, 0, this.config.width, this.config.height, this.style.borderRadius);
+            
+            const bombIcon = this.bombIcons[Math.abs(card.id) % this.bombIcons.length];
+            fill(255);
+            noStroke();
+            textAlign(CENTER, CENTER);
+            textSize(this.config.width * this.style.iconScale);
+            text(bombIcon, 0, 0);
+            return;
+        }
+
+        // 일반 카드 배경색 (ID에 따라 다른 색상)
         const bgColor = this.colors.cardBacks[card.id % this.colors.cardBacks.length];
 
         // 카드 배경
@@ -175,7 +194,7 @@ class CardRenderer {
         // 그림자 (호버 시 더 크게)
         this._drawCardShadow(hoverProgress);
 
-        // 카드 배경 (핑크)
+        // 카드 배경 (핑크) - 폭탄 카드도 동일하게 표시
         fill(this.colors.back);
         stroke(this.colors.border);
         strokeWeight(this.style.borderWidth);

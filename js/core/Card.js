@@ -14,11 +14,13 @@ class Card {
      * @param {number} x - 화면 x 좌표
      * @param {number} y - 화면 y 좌표
      * @param {string} imagePath - 카드 이미지 경로
+     * @param {boolean} [isBombCard=false] - 폭탄 카드 여부
      */
-    constructor(id, x, y, imagePath) {
+    constructor(id, x, y, imagePath, isBombCard = false) {
         // 불변 속성
         this._id = id;
         this._imagePath = imagePath;
+        this._isBombCard = isBombCard;
 
         // 가변 속성 (private)
         this._x = x;
@@ -57,6 +59,9 @@ class Card {
 
     /** @returns {number} */
     get flipCount() { return this._flipCount; }
+
+    /** @returns {boolean} */
+    get isBombCard() { return this._isBombCard; }
 
     // ========== 비즈니스 로직 ==========
 
@@ -169,6 +174,7 @@ class Card {
             imagePath: this._imagePath,
             isFlipped: this._isFlipped,
             isMatched: this._isMatched,
+            isBombCard: this._isBombCard,
             flipCount: this._flipCount
         };
     }
