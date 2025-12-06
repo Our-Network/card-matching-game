@@ -32,7 +32,7 @@ const DIFFICULTY = {
         gridRows: 4,
         pointsPerMatch: 15,
         timePenalty: 10,
-        previewTime: 4000,  // 4초 미리 보기
+        previewTime: 4000,  // 5초 미리 보기
         hearts: 10,         // 하트 10개
         specialCards: {
             bonusPairs: 2   // 정답 짝 카드 2장
@@ -51,7 +51,7 @@ const DIFFICULTY = {
         gridRows: 4,
         pointsPerMatch: 20,
         timePenalty: 15,
-        previewTime: 0,     // 미리 보기 없음
+        previewTime: 5000,  // 5초 미리 보기
         hearts: 20,         // 하트 20개
         specialCards: {
             bombs: 2        // 폭탄 카드 2장
@@ -59,6 +59,29 @@ const DIFFICULTY = {
         color: {
             bg: '#FFEBEE',
             card: '#E57373',
+            text: '#C62828'
+        }
+    },
+    HELL: {
+        name: '지옥',
+        sets: 22,           // 22세트 (3장 매칭) = 66장
+        pairs: 22,          // 호환성을 위해 pairs도 설정 (실제로는 sets 사용)
+        timeLimit: 60,      // 1분
+        gridCols: 12,
+        gridRows: 6,        // 12x6 = 72장 (66장 + 폭탄 6장 = 72장)
+        pointsPerMatch: 30,
+        timePenalty: 20,
+        previewTime: 5000,  // 5초 미리 보기
+        hearts: 25,         // 하트 25개
+        matchingRule: 3,    // 3장 매칭
+        specialCards: {
+            bombs: 6,           // 폭탄 카드 6장
+            shuffle: true,      // 카드 섞임 효과
+            instantDeath: true  // 즉사 메커니즘
+        },
+        color: {
+            bg: '#FFCDD2',   // 어두운 레드
+            card: '#D32F2F',
             text: '#C62828'
         }
     },
@@ -111,8 +134,13 @@ const DIFFICULTY = {
 // 캔버스 설정 (카드 크기 변경으로 높이 증가)
 const CANVAS_CONFIG = {
     width: 1200,
-    height: 900,
-    backgroundColor: '#FFFFFF'
+    height: 800,
+    backgroundColor: '#FFFFFF',
+    // 난이도별 캔버스 크기 (지옥 난이도는 더 큰 배경)
+    hell: {
+        width: 1600,
+        height: 1000
+    }
 };
 
 // 카드 설정 (세로 직사각형, 에셋 비율 379:529 유지)
