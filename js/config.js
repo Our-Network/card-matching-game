@@ -7,7 +7,7 @@
 const DIFFICULTY = {
     EASY: {
         name: '하',
-        pairs: 4,           // 4쌍 = 8장
+        pairs: 3,           // 4쌍 = 8장
         timeLimit: 60,      // 1분
         gridCols: 4,
         gridRows: 2,
@@ -15,9 +15,7 @@ const DIFFICULTY = {
         timePenalty: 5,     // 실패 시 5초 감점
         previewTime: 2500,  // 2.5초 미리 보기
         hearts: 5,          // 하트 5개
-        specialCards: {
-            bonusPairs: 2   // 정답 짝 카드 2장
-        },
+        matchingRule: 2,    // 2장 매칭
         color: {
             bg: '#E8F5E9',
             card: '#81C784',
@@ -26,7 +24,7 @@ const DIFFICULTY = {
     },
     MEDIUM: {
         name: '중',
-        pairs: 8,           // 8쌍 = 16장
+        pairs: 7,           // 8쌍 = 16장
         timeLimit: 90,      // 1.5분
         gridCols: 4,
         gridRows: 4,
@@ -34,9 +32,7 @@ const DIFFICULTY = {
         timePenalty: 10,
         previewTime: 4000,  // 4초 미리 보기
         hearts: 10,         // 하트 10개
-        specialCards: {
-            bonusPairs: 2   // 정답 짝 카드 2장
-        },
+        matchingRule: 2,    // 2장 매칭
         color: {
             bg: '#FFF3E0',
             card: '#FFB74D',
@@ -45,7 +41,7 @@ const DIFFICULTY = {
     },
     HARD: {
         name: '상',
-        pairs: 15,          // 15쌍 = 30장 (폭탄 2장 포함하여 총 32장)
+        pairs: 14,          // 15쌍 = 30장 (폭탄 2장 포함하여 총 32장)
         timeLimit: 90,      // 1.5분
         gridCols: 8,
         gridRows: 4,
@@ -53,9 +49,7 @@ const DIFFICULTY = {
         timePenalty: 15,
         previewTime: 0,     // 미리 보기 없음
         hearts: 20,         // 하트 20개
-        specialCards: {
-            bombs: 2        // 폭탄 카드 2장
-        },
+        matchingRule: 2,    // 2장 매칭
         color: {
             bg: '#FFEBEE',
             card: '#E57373',
