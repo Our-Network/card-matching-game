@@ -121,7 +121,19 @@ class GameState {
 
     /** @returns {boolean} */
     isAllMatched() {
-        return this._matchedPairs === this.totalPairs;
+        // 실제 매칭 가능한 모든 카드가 매칭되었는지 확인
+        // 매칭 가능한 카드: 일반 카드 쌍 + 히든 카드 쌍 (폭탄 카드는 제외)
+        if (!this._cards || this._cards.length === 0) {
+            return false;
+        }
+
+        // 매칭 가능한 카드 수 계산 (폭탄 카드 제외)
+        const matchableCards = this._cards.filter(card => !card.isBombCard);
+        const matchedCards = matchableCards.filter(card => card.isMatched);
+        
+        // 모든 매칭 가능한 카드가 매칭되었는지 확인
+        // 매칭 가능한 카드가 있고, 모두 매칭되었는지 확인
+        return matchableCards.length > 0 && matchedCards.length === matchableCards.length;
     }
 
     // ========== Score ==========

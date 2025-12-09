@@ -698,6 +698,16 @@ class GameManager extends EventEmitter {
         this._checkGameComplete();
     }
 
+    /**
+     * 게임 완료 체크 (내부 헬퍼 메서드)
+     * @private
+     */
+    _checkGameComplete() {
+        if (this.state.isAllMatched()) {
+            this._completeGame();
+        }
+    }
+
     // ========== 타이머 관리 ==========
 
     /**
