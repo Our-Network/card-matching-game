@@ -327,21 +327,32 @@ function setupGameCallbacks() {
         particleSystem.createMatchParticles(centerX, centerY);
     });
 
-    // 히든 카드 매칭 (보너스 효과)
+    // 히든 카드 매칭 - 전체 카드 공개 이벤트
     gameManager.on('hidden:match', (data) => {
         const { card1, card2, points } = data;
-        console.log(`Hidden Card Match! Cards ${card1.id} and ${card2.id}, +${points} points`);
+        console.log('🎉 Hidden card matched!', card1.id, card2.id);
 
         // 특별 효과음 재생
         soundManager.play('hidden_match', 0.8);
 
+        // 특별 시각 효과 (플래시 + 폭죽 + 흔들림)
+        const centerX = (card1.x + card2.x) / 2 + CARD_CONFIG.width / 2;
+        const centerY = (card1.y + card2.y) / 2 + CARD_CONFIG.height / 2;
+        particleSystem.triggerGoldenFlash(500);
+        particleSystem.triggerHiddenExplosion(centerX, centerY);
+        particleSystem.triggerScreenShake(12, 400);
+
         // 애니메이션
         cardRenderer.animateMatch(card1, card2);
-        uiRenderer.showMessage('✨ 히든 카드 발견!', 1500, 'success');
 
-        // 전체 카드 공개 (1초간)
-        const revealDuration = typeof HIDDEN_CARD !== 'undefined' ? HIDDEN_CARD.revealDuration : 1000;
-        revealAllCards(revealDuration);
+        // 특별 메시지 표시
+        uiRenderer.showMessage('✨히든 카드 발견✨', 1500, 'success');
+
+        // 순차 연출: 효과 후 전체 카드 공개
+        setTimeout(() => {
+            const revealDuration = typeof HIDDEN_CARD !== 'undefined' ? HIDDEN_CARD.revealDuration : 1000;
+            revealAllCards(revealDuration);
+        }, 1000);
     });
 
     // 매칭 실패
